@@ -22,11 +22,7 @@ export function formatPercentage(value: number, threshold: number): string {
 /**
  * Format nutrient label with unit
  */
-export function formatNutrientValue(
-  value: number | null,
-  threshold: number,
-  unit: string
-): string {
+export function formatNutrientValue(value: number | null, threshold: number, unit: string): string {
   if (value === null) return `N/A / ${threshold} ${unit}`;
   return `${formatNumber(value)} / ${threshold} ${unit}`;
 }
@@ -40,9 +36,9 @@ export function getThresholdColor(
   colors: { safe: string; caution: string; danger: string }
 ): string {
   if (value === null) return colors.safe;
-  
+
   const percentage = (value / threshold) * 100;
-  
+
   if (percentage >= 80) return colors.danger;
   if (percentage >= 50) return colors.caution;
   return colors.safe;
@@ -51,10 +47,7 @@ export function getThresholdColor(
 /**
  * Check if value exceeds threshold
  */
-export function isThresholdExceeded(
-  value: number | null,
-  threshold: number
-): boolean {
+export function isThresholdExceeded(value: number | null, threshold: number): boolean {
   if (value === null) return false;
   return value > threshold;
 }

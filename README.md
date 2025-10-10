@@ -10,6 +10,7 @@
 **NutriScan AI** is a modern mobile application that simplifies nutritional awareness through AI-powered label scanning. Users photograph food nutrition labels, and the app instantly extracts key nutritional data using OpenAI Vision API. Results are displayed in a visually striking report with color-coded progress bars that immediately highlight nutrients exceeding daily limits.
 
 ### Core Value Proposition
+
 - **Fast**: Scan labels in seconds, no manual entry
 - **Clear**: Visual progress bars with threshold alerts
 - **Smart**: AI-powered data extraction (OpenAI Vision)
@@ -21,6 +22,7 @@
 ## ✨ Features
 
 ### MVP (v1.0)
+
 - 📸 **Image Capture**: Camera + gallery photo selection
 - 🤖 **AI Analysis**: OpenAI Vision API extraction
 - 📊 **Visual Reports**: Color-coded nutrition progress bars
@@ -29,6 +31,7 @@
 - 💾 **Persistence**: Secure local storage of settings
 
 ### Coming Soon
+
 - 📚 Scan history and favorites
 - 🔍 Barcode scanning
 - ⚖️ Product comparison
@@ -43,6 +46,7 @@
 **Neon Clarity Theme** - A modern dark design with glassmorphism effects and vibrant gradients.
 
 ### Visual Identity
+
 - **Colors**: Deep space blue (#111827) with teal-to-lime gradient (#34D399 → #A3E635)
 - **Typography**: Inter font family
 - **Effects**: Glassmorphism with blur and translucency
@@ -53,32 +57,38 @@ See [Design System Documentation](./docs/00-design-system-summary.md) for comple
 ## 🛠️ Technology Stack
 
 ### Core Framework
+
 - **React Native** + **Expo SDK 51+** - Cross-platform mobile development
 - **TypeScript 5.9** - Type-safe development
 - **Node.js 18+** - Runtime environment
 
 ### UI & Design
+
 - `expo-linear-gradient` - Gradient buttons and effects
 - `@react-native-community/blur` - Glassmorphism blur effects
 - `@expo-google-fonts/inter` - Inter font family
 - Custom theme system (colors, typography, spacing)
 
 ### Camera & Images
+
 - `expo-camera` - Camera capture functionality
 - `expo-image-picker` - Gallery photo selection
 - `expo-image-manipulator` - Image compression and optimization
 
 ### Storage & State
+
 - `expo-secure-store` - Secure local storage for settings
 - React Context API - Global state management
 - `useState`/`useReducer` - Local component state
 
 ### AI & API
+
 - **OpenAI Vision API** (`gpt-4o`) - Nutrition label extraction
 - Custom retry logic with exponential backoff
 - Comprehensive error handling
 
 ### Development Tools
+
 - ESLint + Prettier - Code formatting and linting
 - Husky - Git hooks for pre-commit checks
 - Jest + React Native Testing Library - Unit testing
@@ -89,6 +99,7 @@ See [Design System Documentation](./docs/00-design-system-summary.md) for comple
 ## 📦 Installation
 
 ### Prerequisites
+
 - Node.js 18+ and npm/yarn
 - Expo CLI: `npm install -g expo-cli`
 - iOS: Xcode (macOS only)
@@ -98,26 +109,32 @@ See [Design System Documentation](./docs/00-design-system-summary.md) for comple
 ### Setup
 
 1. **Clone the repository**
+
    ```bash
    git clone https://github.com/chayuto/nutriscan-app.git
    cd nutriscan-app
    ```
 
 2. **Install dependencies**
+
    ```bash
    npm install
    ```
 
 3. **Configure environment variables**
+
    ```bash
    cp .env.example .env
    ```
+
    Edit `.env` and add your OpenAI API key:
+
    ```
    EXPO_PUBLIC_OPENAI_API_KEY=sk-your-api-key-here
    ```
 
 4. **Install required Expo packages**
+
    ```bash
    expo install expo-camera expo-image-picker expo-secure-store
    expo install expo-linear-gradient @react-native-community/blur
@@ -125,6 +142,7 @@ See [Design System Documentation](./docs/00-design-system-summary.md) for comple
    ```
 
 5. **Start development server**
+
    ```bash
    npx expo start
    ```
@@ -149,6 +167,7 @@ Comprehensive documentation is available in the [`/docs`](./docs) folder:
 - **[05-ui-specifications.md](./docs/05-ui-specifications.md)** - Detailed UI/UX specifications
 
 ### Quick Links
+
 - [Design Tokens](./docs/00-design-system-summary.md#design-tokens-reference)
 - [Component Library](./docs/00-design-system-summary.md#key-components-to-build)
 - [Implementation Checklist](./docs/04-implementation-checklist.md)
@@ -186,12 +205,14 @@ nutriscan-app/
 ## 🚀 Development Workflow
 
 ### 1. Setup Phase
+
 - ✅ Install dependencies
 - ✅ Configure environment
 - ✅ Setup theme system
 - ✅ Create folder structure
 
 ### 2. Core Development
+
 - 🔄 Build reusable components (buttons, cards, inputs)
 - 🔄 Implement screen layouts (Home, Camera, Report, Settings)
 - 🔄 Integrate OpenAI Vision API
@@ -199,6 +220,7 @@ nutriscan-app/
 - 🔄 Implement settings persistence
 
 ### 3. Polish & Testing
+
 - ⏳ Add animations and transitions
 - ⏳ Implement loading and error states
 - ⏳ Accessibility audit
@@ -206,6 +228,7 @@ nutriscan-app/
 - ⏳ Testing (unit, integration, E2E)
 
 ### 4. Deployment
+
 - ⏳ Configure app.json for stores
 - ⏳ Generate app icons and splash screens
 - ⏳ Create privacy policy and terms
@@ -216,6 +239,7 @@ nutriscan-app/
 ## 🧪 Testing
 
 ### Run Tests
+
 ```bash
 # Unit tests
 npm test
@@ -228,6 +252,7 @@ npm test -- --coverage
 ```
 
 ### Test Structure
+
 - `__tests__/unit/` - Unit tests for utilities and services
 - `__tests__/integration/` - Integration tests for API calls
 - `__tests__/e2e/` - End-to-end user flow tests
@@ -257,6 +282,7 @@ We welcome contributions! Please follow these steps:
 7. Open a Pull Request
 
 ### Development Guidelines
+
 - Follow TypeScript strict mode
 - Maintain 80%+ test coverage
 - Ensure accessibility compliance
@@ -291,6 +317,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 🗺️ Roadmap
 
 ### v1.0 (MVP) - Current
+
 - [x] Project setup and architecture
 - [ ] Core UI components
 - [ ] Camera integration
@@ -299,16 +326,19 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [ ] Settings and persistence
 
 ### v1.1 (Q1 2026)
+
 - [ ] Scan history
 - [ ] Favorite items
 - [ ] Search and filter
 
 ### v1.2 (Q2 2026)
+
 - [ ] Barcode scanning
 - [ ] Product comparison
 - [ ] Enhanced analytics
 
 ### v2.0 (Q3 2026)
+
 - [ ] Meal planning
 - [ ] Dietary recommendations
 - [ ] Social features

@@ -12,38 +12,38 @@ export const colors = {
   primary: '#34D399', // Vibrant Teal
   primaryLight: '#A3E635', // Lime Green
   primaryGradient: ['#34D399', '#A3E635'], // Teal to Lime
-  
+
   // Status Colors
   success: '#34D399', // Vibrant Teal
   warning: '#F59E0B', // Amber
   error: '#EF4444', // Vibrant Red
   info: '#60A5FA', // Sky Blue
-  
+
   // Background & Surfaces
   background: '#111827', // Deep Space Blue
   surface: 'rgba(31, 41, 55, 0.5)', // Translucent Dark Gray (glassmorphism)
   surfaceDark: '#1F2937', // Solid Dark Gray
   overlay: 'rgba(17, 24, 39, 0.9)', // Modal overlay
-  
+
   // Text
   text: '#F9FAFB', // Ghost White (primary text)
   textSecondary: '#9CA3AF', // Cool Gray (secondary text)
   textMuted: '#6B7280', // Muted Gray
-  
+
   // Borders & Dividers
   border: 'rgba(249, 250, 251, 0.2)', // Translucent White
   divider: 'rgba(156, 163, 175, 0.1)', // Subtle divider
-  
+
   // Progress Bar States
   safe: '#34D399', // Teal (0-50%)
   caution: '#F59E0B', // Amber (50-80%)
   danger: '#EF4444', // Red (80-100%+)
   progressTrack: '#374151', // Dark Gray track
-  
+
   // Interactive States
   pressed: 'rgba(52, 211, 153, 0.2)', // Teal overlay when pressed
   disabled: 'rgba(156, 163, 175, 0.3)', // Disabled state
-  
+
   // Light Mode (Optional for future)
   light: {
     background: '#FFFFFF',
@@ -142,11 +142,11 @@ import {
 
 // Base unit: 8px
 export const spacing = {
-  xs: 4,   // 0.5 units
-  sm: 8,   // 1 unit
-  md: 16,  // 2 units
-  lg: 24,  // 3 units
-  xl: 32,  // 4 units
+  xs: 4, // 0.5 units
+  sm: 8, // 1 unit
+  md: 16, // 2 units
+  lg: 24, // 3 units
+  xl: 32, // 4 units
   xxl: 48, // 6 units
   xxxl: 64, // 8 units
 };
@@ -232,9 +232,9 @@ export const glassCard = {
 };
 
 // Usage example:
-<BlurView 
-  blurType="dark" 
-  blurAmount={10} 
+<BlurView
+  blurType="dark"
+  blurAmount={10}
   reducedTransparencyFallbackColor={colors.surfaceDark}
   style={[glassCard, { padding: spacing.md }]}
 >
@@ -392,6 +392,7 @@ const StyledTextInput = ({ value, onChangeText, placeholder, ...props }) => (
 ### HomeScreen (Neon Clarity)
 
 **Layout:**
+
 ```
 ┌─────────────────────────┐
 │  [⚙️]                   │
@@ -480,6 +481,7 @@ const styles = StyleSheet.create({
 ```
 
 **Components:**
+
 - Settings icon button: Top-right, glass effect
 - Logo: Animated gradient glow
 - Title: `typography.h1` with gradient text (optional)
@@ -489,6 +491,7 @@ const styles = StyleSheet.create({
 - History link: Subtle text button
 
 **Interactions:**
+
 - Settings → Slide in from right
 - "Take Photo" → Permission check → Camera modal
 - "Choose Photo" → Permission check → Image picker
@@ -499,6 +502,7 @@ const styles = StyleSheet.create({
 ### CameraView (Full Screen Modal)
 
 **Layout:**
+
 ```
 ┌─────────────────────────┐
 │  [✕]   [Grid] [⚡]      │
@@ -594,6 +598,7 @@ const styles = StyleSheet.create({
 ```
 
 **Components:**
+
 - Full-screen camera preview
 - Close button (✕): Top-left, glass button
 - Grid toggle: Top-center, for alignment
@@ -604,6 +609,7 @@ const styles = StyleSheet.create({
 - Flip camera (🔄): Bottom-right
 
 **Interactions:**
+
 - Close → Fade out modal
 - Grid → Toggle composition grid overlay
 - Flash → Cycle: auto → on → off
@@ -613,6 +619,7 @@ const styles = StyleSheet.create({
 - Flip → Switch front/back camera
 
 **Animations:**
+
 - Focus reticle: Scale + fade in/out (300ms)
 - Capture: Flash overlay + scale down (200ms)
 - Button press: Scale 0.95 (100ms)
@@ -622,6 +629,7 @@ const styles = StyleSheet.create({
 ### ReportScreen (Neon Glass Design)
 
 **Layout:**
+
 ```
 ┌─────────────────────────┐
 │  [← Back]    [Share]    │
@@ -758,7 +766,7 @@ const styles = StyleSheet.create({
 const NutrientProgressBar = ({ label, value, threshold, unit }) => {
   const percentage = Math.min((value / threshold) * 100, 100);
   const exceeded = value > threshold;
-  
+
   const getBarColor = () => {
     if (exceeded) return colors.danger;
     if (percentage > 80) return colors.danger;
@@ -783,11 +791,11 @@ const NutrientProgressBar = ({ label, value, threshold, unit }) => {
           </View>
         )}
       </View>
-      
+
       <Text style={styles.nutrientValues}>
         {value} / {threshold} {unit}
       </Text>
-      
+
       <View style={styles.progressBarContainer}>
         <LinearGradient
           colors={exceeded ? [barColor, barColor] : [colors.primary, colors.primaryLight]}
@@ -796,7 +804,7 @@ const NutrientProgressBar = ({ label, value, threshold, unit }) => {
           style={[styles.progressBarFill, { width: `${percentage}%` }]}
         />
       </View>
-      
+
       <Text style={styles.percentageText}>{percentage.toFixed(0)}%</Text>
     </View>
   );
@@ -804,6 +812,7 @@ const NutrientProgressBar = ({ label, value, threshold, unit }) => {
 ```
 
 **Components:**
+
 - Back button: Icon button with glass effect
 - Share button: Export report image
 - Image thumbnail: Captured label photo
@@ -817,12 +826,14 @@ const NutrientProgressBar = ({ label, value, threshold, unit }) => {
 - Save button: Gradient button at bottom
 
 **Progress Bar States:**
+
 - 0-50%: Teal to Lime gradient
 - 50-80%: Amber solid
 - 80-100%: Red solid
-- >100%: Red + "OVER" badge
+- > 100%: Red + "OVER" badge
 
 **Interactions:**
+
 - Back → Return to home
 - Share → Native share sheet
 - Save → Store to history (Phase 2)
@@ -833,6 +844,7 @@ const NutrientProgressBar = ({ label, value, threshold, unit }) => {
 ### SettingsScreen (Glass Modal)
 
 **Layout:**
+
 ```
 ┌─────────────────────────┐
 │  [✕]                    │
@@ -983,6 +995,7 @@ const ThresholdInput = ({ label, value, onChangeText, unit, icon }) => {
 ```
 
 **Components:**
+
 - Modal overlay: Semi-transparent dark
 - Close button (✕): Top-right
 - Glass card: Scrollable container
@@ -995,6 +1008,7 @@ const ThresholdInput = ({ label, value, onChangeText, unit, icon }) => {
 - Save button: Gradient, full width
 
 **Default Values (FDA Guidelines):**
+
 - Calories: 2000 kcal
 - Protein: 50 g
 - Fat: 70 g
@@ -1005,6 +1019,7 @@ const ThresholdInput = ({ label, value, onChangeText, unit, icon }) => {
 - Sodium: 2300 mg
 
 **Interactions:**
+
 - Close → Discard changes, fade out
 - Input focus → Neon glow border
 - Input validation → Real-time (positive numbers only)
@@ -1013,6 +1028,7 @@ const ThresholdInput = ({ label, value, onChangeText, unit, icon }) => {
 - Back gesture → Prompt if unsaved changes
 
 **Animations:**
+
 - Modal enter: Slide up + fade in (300ms)
 - Modal exit: Slide down + fade out (250ms)
 - Input focus: Glow animation (200ms)
@@ -1025,23 +1041,26 @@ const ThresholdInput = ({ label, value, onChangeText, unit, icon }) => {
 ### NutrientProgressBar
 
 **Props:**
+
 ```typescript
 interface NutrientProgressBarProps {
-  label: string;          // "Calories", "Fat", etc.
-  value: number | null;   // Actual value
-  threshold: number;      // Daily limit
-  unit: string;           // "g", "mg", "kcal"
-  color?: string;         // Override color
+  label: string; // "Calories", "Fat", etc.
+  value: number | null; // Actual value
+  threshold: number; // Daily limit
+  unit: string; // "g", "mg", "kcal"
+  color?: string; // Override color
 }
 ```
 
 **Visual States:**
-1. **Normal**: Value < threshold * 0.8 → Green
-2. **Caution**: Value >= threshold * 0.8 → Orange
+
+1. **Normal**: Value < threshold \* 0.8 → Green
+2. **Caution**: Value >= threshold \* 0.8 → Orange
 3. **Exceeded**: Value >= threshold → Red + Warning icon
 4. **No Data**: Value is null → Gray with "N/A"
 
 **Layout:**
+
 ```
 Label                        ⚠️ (if exceeded)
 Value / Threshold unit
@@ -1049,6 +1068,7 @@ Value / Threshold unit
 ```
 
 **Accessibility:**
+
 - `accessibilityLabel`: "Calories: 250 out of 2000 kcal, 12 percent"
 - `accessibilityRole`: "progressbar"
 - `accessibilityValue`: { min: 0, max: threshold, now: value }
@@ -1058,6 +1078,7 @@ Value / Threshold unit
 ## Loading States
 
 ### Image Analysis
+
 ```
 ┌─────────────────────────┐
 │                         │
@@ -1072,6 +1093,7 @@ Value / Threshold unit
 ```
 
 ### Skeleton Screen (Optional)
+
 Show skeleton of ReportScreen while loading.
 
 ---
@@ -1079,6 +1101,7 @@ Show skeleton of ReportScreen while loading.
 ## Error States
 
 ### Generic Error
+
 ```
 ┌─────────────────────────┐
 │         (!)             │
@@ -1096,6 +1119,7 @@ Show skeleton of ReportScreen while loading.
 ```
 
 ### Permission Denied
+
 ```
 ┌─────────────────────────┐
 │         📷              │
@@ -1117,12 +1141,14 @@ Show skeleton of ReportScreen while loading.
 ## Animations
 
 ### Fade In (Screen transitions)
+
 ```typescript
 duration: 300ms
 easing: ease-in-out
 ```
 
 ### Progress Bar Fill
+
 ```typescript
 duration: 600ms
 easing: ease-out
@@ -1130,12 +1156,14 @@ delay: stagger 100ms per bar
 ```
 
 ### Button Press
+
 ```typescript
 scale: 0.95
 duration: 100ms
 ```
 
 ### Loading Spinner
+
 ```typescript
 rotation: 360deg
 duration: 1000ms
@@ -1147,15 +1175,18 @@ iteration: infinite
 ## Responsive Design
 
 ### Portrait (default)
+
 - Full-width buttons
 - Vertical scroll for report
 - Stack all elements
 
 ### Landscape (optional)
+
 - Two-column layout for settings
 - Side-by-side camera controls
 
 ### Safe Areas
+
 - Use `SafeAreaView` on all screens
 - Account for notch/home indicator
 - Minimum touch target: 44x44pt

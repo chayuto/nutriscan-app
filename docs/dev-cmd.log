@@ -8,3 +8,7 @@ npx expo install expo-camera expo-image-picker expo-secure-store expo-linear-gra
 npx expo install expo-splash-screen
 
 npm install --save-dev --legacy-peer-deps jest @types/jest jest-expo @testing-library/react-native @testing-library/jest-native
+
+npx expo install expo-file-system
+
+npx expo install expo-image-manipulator

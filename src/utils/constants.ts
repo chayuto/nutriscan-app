@@ -13,6 +13,25 @@ export const TIMEOUT_MS = 30000; // 30 seconds
 export const MAX_IMAGE_SIZE_MB = 1;
 export const MAX_IMAGE_WIDTH = 1024;
 
+// Image Service Configuration
+export const IMAGE_DEFAULTS = {
+  // Compression settings
+  MAX_WIDTH: 1024,
+  MAX_HEIGHT: 1024,
+  COMPRESSION_QUALITY: 0.8,
+  MIN_QUALITY: 0.3, // Don't compress below this (quality loss)
+
+  // Size limits
+  MAX_FILE_SIZE: 1024 * 1024, // 1MB in bytes
+  TARGET_FILE_SIZE: 800 * 1024, // 800KB (leaves buffer)
+
+  // Format
+  FORMAT: 'jpeg' as const,
+
+  // Quality reduction per iteration
+  QUALITY_REDUCTION_FACTOR: 0.8,
+} as const;
+
 // Storage Keys
 export const STORAGE_KEYS = {
   THRESHOLDS: 'user_thresholds',
@@ -41,6 +60,14 @@ export const ERROR_MESSAGES = {
   INVALID_IMAGE: 'Invalid image. Please try a different photo.',
   ANALYSIS_FAILED: 'Failed to analyze image. Please try again.',
   SAVE_FAILED: 'Failed to save settings. Please try again.',
+
+  // Image service errors
+  IMAGE_INVALID_URI: 'Invalid image URI',
+  IMAGE_FILE_NOT_FOUND: 'Image file not found',
+  IMAGE_COMPRESSION_FAILED: 'Failed to compress image',
+  IMAGE_CONVERSION_FAILED: 'Failed to convert image to base64',
+  IMAGE_TOO_LARGE: 'Image exceeds maximum file size and cannot be compressed further',
+  IMAGE_INVALID_FORMAT: 'Unsupported image format',
 } as const;
 
 // Animation Durations (ms)

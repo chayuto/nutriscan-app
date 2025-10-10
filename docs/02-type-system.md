@@ -149,9 +149,9 @@ export interface AppState {
 
 export function isValidNutritionData(data: unknown): data is NutritionData {
   if (typeof data !== 'object' || data === null) return false;
-  
+
   const d = data as Record<string, unknown>;
-  
+
   return (
     (typeof d.calories === 'number' || d.calories === null) &&
     (typeof d.protein === 'number' || d.protein === null) &&
@@ -162,12 +162,7 @@ export function isValidNutritionData(data: unknown): data is NutritionData {
 }
 
 export function isAPIError(error: unknown): error is APIError {
-  return (
-    typeof error === 'object' &&
-    error !== null &&
-    'code' in error &&
-    'message' in error
-  );
+  return typeof error === 'object' && error !== null && 'code' in error && 'message' in error;
 }
 ```
 

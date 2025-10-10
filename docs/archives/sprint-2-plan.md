@@ -11,6 +11,7 @@ Implement the core business logic layer including storage, image processing, and
 ## 📋 Task Breakdown
 
 ### Phase 2.1: Storage Service (Day 1) - HIGH PRIORITY
+
 **Estimated Time**: 4 hours
 
 - [ ] Create `src/services/storage.service.ts`
@@ -28,6 +29,7 @@ Implement the core business logic layer including storage, image processing, and
   - [ ] Test invalid JSON
 
 **Acceptance Criteria**:
+
 - ✅ Thresholds persist across app restarts
 - ✅ Graceful fallback to default values
 - ✅ 80%+ test coverage
@@ -35,6 +37,7 @@ Implement the core business logic layer including storage, image processing, and
 ---
 
 ### Phase 2.2: Image Service (Day 1-2) - HIGH PRIORITY
+
 **Estimated Time**: 4 hours
 
 - [ ] Create `src/services/image.service.ts`
@@ -55,6 +58,7 @@ Implement the core business logic layer including storage, image processing, and
   - [ ] Test error cases (invalid URI, large files)
 
 **Acceptance Criteria**:
+
 - ✅ Images compressed to < 1MB before upload
 - ✅ Base64 encoding works correctly
 - ✅ Permission prompts are user-friendly
@@ -63,6 +67,7 @@ Implement the core business logic layer including storage, image processing, and
 ---
 
 ### Phase 2.3: OpenAI Service (Day 2-3) - CRITICAL PRIORITY
+
 **Estimated Time**: 6 hours
 
 - [ ] Create `src/services/openai.service.ts`
@@ -84,6 +89,7 @@ Implement the core business logic layer including storage, image processing, and
   - [ ] Test error mapping
 
 **System Prompt** (use this exact format):
+
 ```
 You are a nutrition label analyzer. Extract nutritional values per 100g from food labels.
 
@@ -109,6 +115,7 @@ Rules:
 ```
 
 **Acceptance Criteria**:
+
 - ✅ API calls succeed with valid nutrition labels
 - ✅ Retry logic handles transient failures
 - ✅ Timeout after 30 seconds with clear error
@@ -119,9 +126,11 @@ Rules:
 ---
 
 ### Phase 2.4: Custom Hooks (Day 3-4) - HIGH PRIORITY
+
 **Estimated Time**: 4 hours
 
 #### usePermissions Hook
+
 - [ ] Create `src/hooks/usePermissions.ts`
   - [ ] Implement `requestCameraPermission()`
   - [ ] Implement `requestGalleryPermission()`
@@ -129,6 +138,7 @@ Rules:
   - [ ] Handle permission denial with clear UI
 
 #### useCamera Hook
+
 - [ ] Create `src/hooks/useCamera.ts`
   - [ ] Integrate expo-camera
   - [ ] Implement `capturePhoto(): Promise<string>`
@@ -137,6 +147,7 @@ Rules:
   - [ ] Handle errors gracefully
 
 #### useNutritionAnalysis Hook
+
 - [ ] Create `src/hooks/useNutritionAnalysis.ts`
   - [ ] Use OpenAI service
   - [ ] Implement `analyzeImage(uri: string): Promise<NutritionData | null>`
@@ -144,6 +155,7 @@ Rules:
   - [ ] Handle all error cases
 
 #### useThresholds Hook
+
 - [ ] Create `src/hooks/useThresholds.ts`
   - [ ] Load from storage on mount
   - [ ] Implement `updateThreshold(key, value)`
@@ -152,6 +164,7 @@ Rules:
   - [ ] Return thresholds and update functions
 
 **Acceptance Criteria**:
+
 - ✅ All hooks handle loading and error states
 - ✅ Hooks are reusable and composable
 - ✅ Side effects properly cleaned up
@@ -162,17 +175,20 @@ Rules:
 ## 🧪 Testing Strategy
 
 ### Unit Tests
+
 - Storage service CRUD operations
 - Image compression logic
 - Validators and formatters
 - Type guards
 
 ### Integration Tests
+
 - OpenAI service with mocked API
 - Retry logic with simulated failures
 - Image service with test images
 
 ### Manual Testing
+
 - Camera permissions on physical device
 - Gallery permissions on physical device
 - OpenAI API with real nutrition labels (3-5 samples)
@@ -182,11 +198,13 @@ Rules:
 ## 📦 Dependencies
 
 ### Required Environment Variables
+
 ```bash
 EXPO_PUBLIC_OPENAI_API_KEY=sk-...
 ```
 
 ### New Dependencies (if needed)
+
 ```bash
 npm install --save-dev @testing-library/react-native jest-expo
 ```
@@ -223,11 +241,13 @@ npm install --save-dev @testing-library/react-native jest-expo
 ## 🔜 Next Sprint: Camera Integration & UI Components
 
 After Sprint 2, we'll have:
+
 - ✅ All core services working
 - ✅ Custom hooks ready
 - ✅ API integration complete
 
 Sprint 3 will focus on:
+
 - Camera view component
 - Basic UI components (buttons, cards, progress bars)
 - Home screen with working camera

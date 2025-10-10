@@ -4,7 +4,7 @@
 
 ### Core Service Structure
 
-```typescript
+````typescript
 // src/services/openai.service.ts
 
 import { OpenAIRequest, OpenAIResponse, APIError } from '@types/api.types';
@@ -16,7 +16,11 @@ const MAX_RETRIES = 3;
 const TIMEOUT_MS = 30000;
 
 export class OpenAIService {
-  private async fetchWithTimeout(url: string, options: RequestInit, timeoutMs: number): Promise<Response> {
+  private async fetchWithTimeout(
+    url: string,
+    options: RequestInit,
+    timeoutMs: number
+  ): Promise<Response> {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), timeoutMs);
 
@@ -32,7 +36,7 @@ export class OpenAIService {
   }
 
   private async delay(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
   async analyzeImage(base64Image: string): Promise<NutritionData> {
@@ -44,7 +48,7 @@ export class OpenAIService {
         return this.parseResponse(response);
       } catch (error) {
         lastError = this.handleError(error);
-        
+
         if (!lastError.retryable || attempt === MAX_RETRIES) {
           throw lastError;
         }
@@ -93,7 +97,7 @@ export class OpenAIService {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${OPENAI_API_KEY}`,
+          Authorization: `Bearer ${OPENAI_API_KEY}`,
         },
         body: JSON.stringify(payload),
       },
@@ -153,12 +157,12 @@ Example:
 
     try {
       // Extract JSON from markdown code blocks if present
-      const jsonMatch = content.match(/```json\n([\s\S]*?)\n```/) || 
-                        content.match(/```\n([\s\S]*?)\n```/);
+      const jsonMatch =
+        content.match(/```json\n([\s\S]*?)\n```/) || content.match(/```\n([\s\S]*?)\n```/);
       const jsonStr = jsonMatch ? jsonMatch[1] : content;
 
       const data = JSON.parse(jsonStr);
-      
+
       // Validate with type guard or Zod
       if (!this.isValidNutritionData(data)) {
         throw new Error('Invalid nutrition data structure');
@@ -233,7 +237,7 @@ Example:
 }
 
 export const openAIService = new OpenAIService();
-```
+````
 
 ## Environment Setup
 
