@@ -1,140 +1,233 @@
-# NutriScan AI - Copilot Instructions
+# NutriScan AI - GitHub Copilot Instructions
 
-## Project Context
-Mobile app for scanning food nutrition labels using AI. Users photograph labels → AI extracts data → Visual report with threshold alerts.
+> **Quick Reference**: This file provides essential guidelines for AI-assisted development. For detailed specifications, see the [Documentation Hub](../docs/README.md).
 
-## Tech Stack
-- **Framework**: React Native + Expo (TypeScript)
-- **AI**: OpenAI Vision API (gpt-4o)
-- **Storage**: expo-secure-store
-- **Camera**: expo-camera, expo-image-picker
+## 🎯 Project Overview
 
-## Architecture Guidelines
+**NutriScan AI** - Mobile nutrition label scanner using OpenAI Vision API  
+**Stack**: React Native + Expo SDK 51+ (TypeScript) + OpenAI gpt-4o  
+**Theme**: Neon Clarity (dark mode with glassmorphism)  
+**Flow**: Camera → AI Analysis → Visual Report with Threshold Alerts
 
-### Code Organization
-- Follow single responsibility principle
-- Separate business logic from UI components
-- Use custom hooks for reusable logic (e.g., `useCamera`, `useNutritionAnalysis`, `useThresholds`)
-- Structure: `/src/components`, `/src/hooks`, `/src/services`, `/src/types`, `/src/utils`
+## 🎨 Design System Quick Reference
 
-### TypeScript Best Practices
-- Define strict types for all nutrition data, API responses, and user settings
-- Use interfaces for object shapes, types for unions/primitives
-- Avoid `any` - use `unknown` with type guards if needed
-- Enable strict mode in `tsconfig.json`
-
-### State Management
-- Use Context API for global state (user thresholds, settings)
-- Keep component state local when possible
-- Consider Zustand or Redux Toolkit for complex state
-- Implement optimistic updates for better UX
-
-### API Integration
-- **Critical**: Implement retry logic with exponential backoff
-- Use environment variables for API keys (never commit secrets)
-- Add request/response interceptors for logging and error handling
-- Implement proper timeout handling (30s for image analysis)
-- Cache API responses when appropriate
-- Handle rate limiting gracefully
-
-### Error Handling
-- Wrap API calls in try-catch with specific error types
-- Show user-friendly error messages
-- Log errors to crash reporting service (Sentry recommended)
-- Implement offline mode fallbacks
-- Handle permission denials gracefully (camera, storage)
-
-### Performance Optimization
-- Optimize images before API upload (resize, compress)
-- Use React.memo for expensive components
-- Implement lazy loading for screens
-- Debounce user input in settings
-- Use FlatList for scrollable content with many items
-
-### Security
-- Store API keys in environment variables, never in code
-- Use expo-secure-store for sensitive data
-- Validate and sanitize all user inputs
-- Implement API key rotation strategy
-- Use HTTPS only for API calls
-
-### Testing Requirements
-- Unit tests for utility functions and data parsing
-- Integration tests for API service
-- Component tests with React Native Testing Library
-- E2E tests for critical flows (capture → analyze → report)
-- Test edge cases: null values, malformed labels, API failures
-
-### UI/UX Standards
-- Follow iOS/Android platform guidelines
-- Implement loading states for all async operations
-- Add haptic feedback for user actions
-- Ensure accessibility (screen readers, sufficient contrast)
-- Support both light and dark themes
-- Add skeleton screens for loading states
-
-### Code Quality
-- Use ESLint with Airbnb config + React Native rules
-- Use Prettier for consistent formatting
-- Implement pre-commit hooks (Husky + lint-staged)
-- Maintain 80%+ code coverage
-- Document complex logic with JSDoc comments
-
-### OpenAI Vision API Guidelines
-- System prompt must enforce strict JSON output format
-- Include example responses in prompt for consistency
-- Handle null/missing values in nutrition data
-- Validate API response structure before processing
-- Set temperature to 0 for deterministic results
-- Use vision detail: "high" for better accuracy
-
-### Progressive Enhancement
-- Start with MVP: capture → analyze → display
-- Phase 2: Add history, favorites, barcode scanning
-- Phase 3: Add meal planning, dietary recommendations
-- Keep each feature behind feature flags
-
-## Critical Patterns
-
-### API Response Parsing
+### Colors (NEVER hardcode - import from `@/theme`)
 ```typescript
-interface NutritionData {
-  calories: number | null;
-  fat: number | null;
-  sugars: number | null;
-  // ... strictly typed
-}
-
-// Always validate with Zod or similar
+background: '#111827'      // Deep Space Blue
+primary: '#34D399'         // Vibrant Teal (safe state)
+primaryLight: '#A3E635'    // Lime Green (gradient end)
+warning: '#F59E0B'         // Amber (caution state)
+error: '#EF4444'           // Red (danger state)
+text: '#F9FAFB'            // Ghost White
+textSecondary: '#9CA3AF'   // Cool Gray
+surface: 'rgba(31, 41, 55, 0.5)'  // Glass cards
 ```
 
-### Error Boundaries
-Wrap screens in error boundaries to prevent app crashes.
+### Typography (Inter Font)
+```typescript
+h1: Inter_700Bold, 32px
+h2: Inter_600SemiBold, 24px
+body: Inter_400Regular, 16px
+button: Inter_600SemiBold, 16px
+```
 
-### Analytics
-Track key events: photo_taken, analysis_success, analysis_failure, threshold_exceeded.
+### Spacing (8px grid)
+```typescript
+xs: 4, sm: 8, md: 16, lg: 24, xl: 32, xxl: 48
+```
 
-## Deployment Checklist
-- [ ] Environment variables configured
-- [ ] Error tracking enabled
-- [ ] Analytics integrated
-- [ ] App icons and splash screens
-- [ ] Privacy policy and terms
-- [ ] Store screenshots and descriptions
-- [ ] Test on physical devices (iOS + Android)
+### Key Components
+- **Gradient Button**: `LinearGradient` with `[#34D399, #A3E635]`
+- **Glass Card**: `BlurView` with `surface` background
+- **Progress Bar**: Color-coded (green → amber → red) based on threshold %
+- **Touch Targets**: Minimum 44x44pt (accessibility requirement)
 
-## Common Pitfalls to Avoid
-- Don't block UI thread with image processing
-- Don't trust API responses without validation
-- Don't store base64 images in state (use URI)
-- Don't forget to clean up camera resources
-- Don't skip permission request explanations
-- Don't hard-code threshold values in components
+## 📐 Architecture Principles
 
-## When Suggesting Code
-1. Check for existing patterns in the codebase first
-2. Prioritize type safety and error handling
-3. Include loading and error states
-4. Add inline comments for complex logic
-5. Suggest tests alongside implementation
-6. Consider mobile performance implications
+### File Structure
+```
+src/
+├── theme/        # Design tokens (colors, typography, spacing)
+├── types/        # TypeScript interfaces & types
+├── services/     # API & storage (openai, storage, image)
+├── hooks/        # Custom hooks (useCamera, useNutritionAnalysis)
+├── components/   # Reusable UI (NutrientProgressBar, GlassCard)
+└── screens/      # Main screens (Home, Report, Settings)
+```
+
+### Code Organization Rules
+1. **Single Responsibility**: One concern per component/service/hook
+2. **Business Logic**: In services & hooks, NOT in components
+3. **Type Safety**: Strict TypeScript, NO `any` types
+4. **Theme Values**: ALWAYS import from `@/theme`, never hardcode
+5. **Error Handling**: Try-catch around ALL async operations
+6. **Accessibility**: WCAG AA compliance (contrast 4.5:1, touch 44pt)
+
+## 🔧 Critical Implementation Patterns
+
+### Component Structure (ALWAYS use this)
+```typescript
+import { colors, spacing, typography } from '@/theme';
+
+interface Props { /* typed props */ }
+
+export const Component: React.FC<Props> = ({ prop }) => {
+  // 1. Hooks
+  const [state, setState] = useState();
+  
+  // 2. Callbacks
+  const handleAction = useCallback(() => {}, [deps]);
+  
+  // 3. Effects
+  useEffect(() => {}, []);
+  
+  // 4. Render
+  return <View style={styles.container}>{/* JSX */}</View>;
+};
+
+// 5. Styles (outside component, use theme values)
+const styles = StyleSheet.create({
+  container: { backgroundColor: colors.background, padding: spacing.md }
+});
+```
+
+### API Integration (OpenAI Vision)
+```typescript
+// MUST include:
+// 1. Retry logic with exponential backoff (3 attempts: 1s, 2s, 4s)
+// 2. Timeout handling (30s max with AbortController)
+// 3. Response validation (Zod schema or type guard)
+// 4. Error mapping (TIMEOUT, RATE_LIMIT, AUTH_ERROR, SERVER_ERROR)
+
+for (let attempt = 1; attempt <= 3; attempt++) {
+  try {
+    const response = await fetchWithTimeout(url, options, 30000);
+    return validateResponse(response);
+  } catch (error) {
+    if (!isRetryable(error) || attempt === 3) throw error;
+    await delay(Math.pow(2, attempt - 1) * 1000);
+  }
+}
+```
+
+### Error Handling (REQUIRED)
+```typescript
+// 1. Wrap ALL async operations
+try {
+  const result = await service.method();
+} catch (error) {
+  if (error.code === 'TIMEOUT') {
+    setError('Request timed out. Please try again.');
+  }
+  // Log to console/Sentry in production
+}
+
+// 2. Permission requests with clear rationale
+if (status !== 'granted') {
+  Alert.alert('Camera Access Needed', 'NutriScan needs...', [
+    { text: 'Open Settings', onPress: () => Linking.openSettings() }
+  ]);
+}
+
+// 3. Error Boundary around all screens
+<ErrorBoundary><Screen /></ErrorBoundary>
+```
+
+### UI/UX Standards (REQUIRED)
+
+**Loading States** (every async operation):
+```typescript
+{isLoading && (
+  <ActivityIndicator size="large" color={colors.primary} />
+  <Text>Analyzing... (up to 30 seconds)</Text>
+)}
+```
+
+**Gradient Buttons**:
+```typescript
+<Pressable style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}>
+  <LinearGradient colors={colors.primaryGradient}>
+    <Text>{children}</Text>
+  </LinearGradient>
+</Pressable>
+```
+
+**Glass Cards**:
+```typescript
+<BlurView blurType="dark" blurAmount={10} style={styles.glass}>
+  {children}
+</BlurView>
+
+styles.glass = {
+  backgroundColor: colors.surface,
+  borderRadius: 20,
+  borderWidth: 1,
+  borderColor: colors.border,
+}
+```
+
+**Accessibility** (WCAG AA):
+```typescript
+<Pressable
+  accessible={true}
+  accessibilityRole="button"
+  accessibilityLabel="Take photo of nutrition label"
+  accessibilityHint="Opens camera to scan"
+>
+```
+
+## 📋 When Suggesting Code
+
+### ALWAYS Include:
+1. ✅ Import theme values (`colors`, `spacing`, `typography`)
+2. ✅ Loading & error states
+3. ✅ TypeScript types/interfaces
+4. ✅ Accessibility attributes
+5. ✅ Error handling (try-catch)
+6. ✅ Component/service/hook patterns from above
+7. ✅ Comments for complex logic
+
+### NEVER:
+1. ❌ Hardcode colors, spacing, or typography
+2. ❌ Use `any` type in TypeScript
+3. ❌ Skip loading states for async operations
+4. ❌ Forget accessibility attributes
+5. ❌ Trust API responses without validation
+6. ❌ Block UI thread with heavy operations
+7. ❌ Commit API keys (use `.env`)
+
+## 🧪 Testing Requirements
+
+- **Coverage**: 80%+ required
+- **Unit**: Test utilities, validators, formatters
+- **Integration**: Test services with retry logic, error handling
+- **Component**: Test UI states (loading, error, success, accessibility)
+- **E2E**: Critical flow (camera → analyze → report)
+
+## 📚 Detailed Documentation
+
+For comprehensive specifications, see:
+
+- **[00-design-system-summary.md](../docs/00-design-system-summary.md)** - Complete design tokens & components
+- **[01-architecture.md](../docs/01-architecture.md)** - Project structure & patterns
+- **[02-type-system.md](../docs/02-type-system.md)** - TypeScript types & Zod schemas
+- **[03-api-integration.md](../docs/03-api-integration.md)** - Full OpenAI service implementation
+- **[04-implementation-checklist.md](../docs/04-implementation-checklist.md)** - 9-phase build plan (150+ tasks)
+- **[05-ui-specifications.md](../docs/05-ui-specifications.md)** - Detailed screen layouts & styling
+- **[docs/README.md](../docs/README.md)** - Documentation hub & reading guides
+
+## 🎯 File Naming Conventions
+
+```
+Components:  PascalCase.tsx       (NutrientProgressBar.tsx)
+Screens:     PascalCase.tsx       (HomeScreen.tsx)
+Hooks:       camelCase.ts         (useCamera.ts)
+Services:    camelCase.service.ts (openai.service.ts)
+Types:       camelCase.types.ts   (nutrition.types.ts)
+Theme:       camelCase.ts         (colors.ts)
+```
+
+---
+
+**Remember**: Production-grade = type-safe + accessible + performant + well-tested.  
+Every component handles loading/error/empty states. Every API call has retry logic + timeout. Every interaction has visual feedback.
