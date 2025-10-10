@@ -44,24 +44,6 @@ const mockReadAsStringAsync = FileSystem.readAsStringAsync as jest.MockedFunctio
   typeof FileSystem.readAsStringAsync
 >;
 
-// Helper to create FileInfo mock
-const createFileInfo = (exists: boolean, size?: number, uri?: string) => {
-  if (!exists) {
-    return {
-      exists: false,
-      uri: uri || '',
-      isDirectory: false,
-    };
-  }
-  return {
-    exists: true,
-    uri: uri || 'file://test.jpg',
-    size: size || 0,
-    isDirectory: false,
-    modificationTime: Date.now(),
-  };
-};
-
 describe('ImageService', () => {
   let service: ImageService;
 
@@ -311,8 +293,10 @@ describe('ImageService', () => {
     });
 
     it('should throw INVALID_URI on null/undefined', async () => {
-      await expect(service.validateImageUri(null as any)).rejects.toThrow(ImageError);
-      await expect(service.validateImageUri(undefined as any)).rejects.toThrow(ImageError);
+      await expect(service.validateImageUri(null as unknown as string)).rejects.toThrow(ImageError);
+      await expect(service.validateImageUri(undefined as unknown as string)).rejects.toThrow(
+        ImageError
+      );
     });
 
     it('should throw FILE_NOT_FOUND if file does not exist', async () => {
@@ -329,9 +313,11 @@ describe('ImageService', () => {
 
   describe('getImageSize', () => {
     it('should get dimensions of valid image', async () => {
-      mockImageGetSize.mockImplementation((_uri, success) => {
-        success(1920, 1080);
-      });
+      mockImageGetSize.mockImplementation(
+        (_uri: string, success: (width: number, height: number) => void) => {
+          success(1920, 1080);
+        }
+      );
 
       const result = await service.getImageSize('file://test.jpg');
 
@@ -339,9 +325,15 @@ describe('ImageService', () => {
     });
 
     it('should throw error for invalid image', async () => {
-      mockImageGetSize.mockImplementation((_uri, _success, failure) => {
-        failure(new Error('Invalid image format'));
-      });
+      mockImageGetSize.mockImplementation(
+        (
+          _uri: string,
+          _success: (width: number, height: number) => void,
+          failure?: (error: Error) => void
+        ) => {
+          failure?.(new Error('Invalid image format'));
+        }
+      );
 
       await expect(service.getImageSize('file://corrupted.jpg')).rejects.toThrow(ImageError);
       await expect(service.getImageSize('file://corrupted.jpg')).rejects.toThrow(

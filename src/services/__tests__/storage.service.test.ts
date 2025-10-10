@@ -62,7 +62,7 @@ describe('StorageService', () => {
     it('should reject invalid thresholds (non-numeric values)', async () => {
       const invalidThresholds = {
         ...validThresholds,
-        protein: 'fifty' as any, // Invalid!
+        protein: 'fifty' as unknown as number, // Invalid!
       };
 
       await expect(storageService.saveThresholds(invalidThresholds)).rejects.toThrow(StorageError);

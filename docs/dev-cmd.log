@@ -12,3 +12,5 @@ npm install --save-dev --legacy-peer-deps jest @types/jest jest-expo @testing-li
 npx expo install expo-file-system
 
 npx expo install expo-image-manipulator
+
+npm install --save-dev @typescript-eslint/parser @typescript-eslint/eslint-plugin eslint

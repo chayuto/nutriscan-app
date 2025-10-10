@@ -129,7 +129,7 @@ class StorageService implements IStorageService {
         await SecureStore.setItemAsync(STORAGE_KEYS.THRESHOLDS, jsonData);
       }, 'save thresholds');
 
-      console.log('✅ Thresholds saved successfully');
+      console.warn('✅ Thresholds saved successfully');
     } catch (error) {
       console.error('❌ Failed to save thresholds:', error);
       throw error;
@@ -150,7 +150,7 @@ class StorageService implements IStorageService {
 
       // No stored data - return defaults
       if (!jsonData) {
-        console.log('ℹ️ No stored thresholds found, using defaults');
+        console.warn('ℹ️ No stored thresholds found, using defaults');
         return DEFAULT_THRESHOLDS;
       }
 
@@ -162,7 +162,7 @@ class StorageService implements IStorageService {
         return DEFAULT_THRESHOLDS;
       }
 
-      console.log('✅ Thresholds loaded successfully');
+      console.warn('✅ Thresholds loaded successfully');
       return parsedData;
     } catch (error) {
       // Graceful fallback - never break the app
@@ -181,7 +181,7 @@ class StorageService implements IStorageService {
         await SecureStore.deleteItemAsync(STORAGE_KEYS.THRESHOLDS);
       }, 'clear thresholds');
 
-      console.log('✅ Thresholds cleared successfully');
+      console.warn('✅ Thresholds cleared successfully');
     } catch (error) {
       console.error('❌ Failed to clear thresholds:', error);
       throw new StorageError('Failed to clear thresholds', 'clear', error);
@@ -226,7 +226,7 @@ class StorageService implements IStorageService {
           })
         )
       );
-      console.log('🗑️ All storage cleared');
+      console.warn('🗑️ All storage cleared');
     } catch (error) {
       console.error('❌ Failed to clear all storage:', error);
     }
