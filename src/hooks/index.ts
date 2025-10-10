@@ -6,13 +6,16 @@
  * - usePermissions: Generic permission management for camera and media library
  * - useCamera: Camera capture and gallery image picking
  * - useThresholds: Settings management with debounced auto-save
+ * - useNutritionAnalysis: Image analysis orchestration with OpenAI Vision
  */
 
 export { usePermissions } from './usePermissions';
 export { useCamera } from './useCamera';
 export { useThresholds } from './useThresholds';
+export { useNutritionAnalysis } from './useNutritionAnalysis';
 
 export type { PermissionType, PermissionStatus, UsePermissionsReturn } from './usePermissions';
 
 export type { UseCameraReturn } from './useCamera';
 export type { UseThresholdsReturn } from './useThresholds';
+export type { UseNutritionAnalysisReturn, AnalysisProgress } from './useNutritionAnalysis';
