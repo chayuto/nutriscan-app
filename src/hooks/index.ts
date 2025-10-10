@@ -1,15 +1,18 @@
 /**
  * Hooks barrel export
  *
- * Provides a centralized export point for all custom React hooks
+ * Exports all custom React hooks for use throughout the application.
+ * Currently includes:
+ * - usePermissions: Generic permission management for camera and media library
+ * - useCamera: Camera capture and gallery image picking
+ * - useThresholds: Settings management with debounced auto-save
  */
 
 export { usePermissions } from './usePermissions';
+export { useCamera } from './useCamera';
+export { useThresholds } from './useThresholds';
+
 export type { PermissionType, PermissionStatus, UsePermissionsReturn } from './usePermissions';
 
-export { useCamera } from './useCamera';
 export type { UseCameraReturn } from './useCamera';
-
-// Future exports (Phase 2.4):
-// export { useThresholds } from './useThresholds';
-// export { useNutritionAnalysis } from './useNutritionAnalysis';
+export type { UseThresholdsReturn } from './useThresholds';

@@ -1,18 +1,22 @@
-# Sprint 2 Progress - Service Layer
+# Sprint 2 Progress - Service Layer + Hooks
 
-## 📊 Current Status: Phase 2.3 Complete ✅
+## 📊 Current Status: Phase 2.4 - 50% Complete 🔄
 
 ### Completed Phases
 
 #### ✅ Phase 2.1: Storage Service
+
 **Status**: Complete (89% coverage, 20/20 tests passing)
+
 - Secure storage with expo-secure-store
 - Type-safe getters/setters for nutrition thresholds
 - JSON serialization/deserialization
 - Error handling with fallbacks
 
-#### ✅ Phase 2.2: Image Service  
+#### ✅ Phase 2.2: Image Service
+
 **Status**: Complete (100% coverage, 23/23 tests passing) ⭐
+
 - Image compression with recursive quality reduction
 - Target 800KB (buffer under 1MB OpenAI limit)
 - Aspect ratio preservation (landscape/portrait/square)
@@ -20,7 +24,9 @@
 - Comprehensive validation and error handling
 
 #### ✅ Phase 2.3: OpenAI Service
+
 **Status**: Complete (87% coverage, 10/10 tests passing) ⭐
+
 - Vision API integration with gpt-4o model
 - Retry logic with exponential backoff (1s → 2s → 4s)
 - Timeout handling (30s with AbortController)
@@ -28,28 +34,83 @@
 - User-friendly error messages
 - Type validation for nutrition data
 
+#### 🔄 Phase 2.4: Custom Hooks (50% Complete)
+
+##### ✅ Phase 2.4.1: usePermissions Hook
+
+**Status**: Complete (96.07% coverage, 18/18 tests passing) ⭐
+
+- Generic permission wrapper for camera and media library
+- Automatic permission check on mount
+- Platform-specific behavior (iOS canAskAgain)
+- Settings deep-linking with Alert dialogs
+- Loading states and error handling
+- **Migration**: Removed deprecated @testing-library/react-hooks
+- **Testing**: Using @testing-library/react-native (React 19 compatible)
+
+##### ✅ Phase 2.4.2: useCamera Hook
+
+**Status**: Complete (100% coverage, 19/19 tests passing) ⭐
+
+- Camera photo capture via expo-image-picker
+- Gallery image selection
+- Uses usePermissions for permission management
+- User cancellation handling (returns null, not error)
+- Loading states: isCapturing, isPicking
+- Error enhancement for user-friendly messages
+- Last image caching
+- Prevents concurrent operations
+
+##### 📝 Phase 2.4.3: useThresholds Hook (Next)
+
+**Status**: Not started
+**ETA**: 25 minutes
+
+- Load thresholds from storage on mount
+- Update threshold with optimistic UI
+- Debounced save (500ms delay)
+- Reset to defaults
+- Loading/saving states
+
+##### 📝 Phase 2.4.4: useNutritionAnalysis Hook (Final)
+
+**Status**: Not started
+**ETA**: 40 minutes
+
+- Multi-step progress tracking (compress → convert → analyze)
+- Uses imageService and openAIService
+- Uses useThresholds for threshold context
+- Retry functionality
+- Result caching
+- Prevent concurrent analysis
+
 ### Next Phase
 
-#### 📝 Phase 2.4: Custom Hooks (In Planning)
-**Status**: Implementation plan complete, ready to build
-- `usePermissions` - Generic permission handler
-- `useCamera` - Camera capture + gallery picker
-- `useThresholds` - Settings management with persistence
-- `useNutritionAnalysis` - Orchestrate image → nutrition flow
+**After Phase 2.4**: Phase 3 - UI Components (Next Sprint)
 
-**ETA**: ~2.5 hours
-**Blocks**: Phase 3 (UI Components)
+- Build reusable UI components (Button, Card, ProgressBar)
+- Build screens (Home, Camera, Report, Settings)
+- Implement navigation
+- Add animations
+- Accessibility audit
+
+**Estimated Time**: 3-4 hours
+**Blocks**: Nothing (Phase 2 foundation complete)
 
 ---
 
 ## 📈 Test Coverage Summary
 
-| Service | Statements | Branches | Functions | Lines | Tests |
-|---------|-----------|----------|-----------|-------|-------|
+| Module | Statements | Branches | Functions | Lines | Tests |
+|--------|-----------|----------|-----------|-------|-------|
 | **Storage** | 89.06% | 85.71% | 76.47% | 88.70% | 20/20 ✅ |
 | **Image** | 100% | 100% | 100% | 100% | 23/23 ✅ |
 | **OpenAI** | 87.17% | 82.22% | 83.33% | 89.18% | 10/10 ✅ |
-| **TOTAL** | **~92%** | **~89%** | **~86%** | **~93%** | **53/53** ✅ |
+| **usePermissions** | 96.07% | 80% | 100% | 96.07% | 18/18 ✅ |
+| **useCamera** | 100% | 95.83% | 100% | 100% | 19/19 ✅ |
+| **TOTAL** | **84.27%** | **72.45%** | **75.43%** | **86.68%** | **90/90** ✅ |
+
+**Improvement Since Phase 2.3**: +2.61% overall coverage, +19 tests
 
 ---
 
