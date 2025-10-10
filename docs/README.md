@@ -48,6 +48,20 @@ Welcome to the complete implementation documentation for NutriScan AI.
    - Animation specifications
    - Accessibility requirements
 
+### Implementation Plans (Sprint 2)
+
+- **[features/image-service-implementation-plan.md](./features/image-service-implementation-plan.md)** - Image Service (Phase 2.2) ✅
+  - Image compression with recursive quality reduction
+  - Base64 conversion for API payloads
+  - Aspect ratio preservation
+  - Complete with 23/23 tests passing
+
+- **[features/hooks-implementation-plan.md](./features/hooks-implementation-plan.md)** - Custom Hooks (Phase 2.4) 📝
+  - usePermissions, useCamera, useThresholds, useNutritionAnalysis
+  - React integration layer for services
+  - State management patterns
+  - Testing strategy with @testing-library/react-hooks
+
 ### Original Design Reference
 
 - **[design.md](./design.md)** - Original Neon Clarity theme specification
