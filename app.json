@@ -28,7 +28,19 @@
     },
     "plugins": [
       "expo-secure-store",
-      "expo-font"
+      "expo-font",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow NutriScan to scan nutrition labels with your camera"
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow NutriScan to access photos from your library to analyze nutrition labels"
+        }
+      ]
     ]
   }
 }

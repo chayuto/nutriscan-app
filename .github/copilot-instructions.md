@@ -12,18 +12,20 @@
 ## 🎨 Design System Quick Reference
 
 ### Colors (NEVER hardcode - import from `@/theme`)
+
 ```typescript
-background: '#111827'      // Deep Space Blue
-primary: '#34D399'         // Vibrant Teal (safe state)
-primaryLight: '#A3E635'    // Lime Green (gradient end)
-warning: '#F59E0B'         // Amber (caution state)
-error: '#EF4444'           // Red (danger state)
-text: '#F9FAFB'            // Ghost White
-textSecondary: '#9CA3AF'   // Cool Gray
-surface: 'rgba(31, 41, 55, 0.5)'  // Glass cards
+background: '#111827'; // Deep Space Blue
+primary: '#34D399'; // Vibrant Teal (safe state)
+primaryLight: '#A3E635'; // Lime Green (gradient end)
+warning: '#F59E0B'; // Amber (caution state)
+error: '#EF4444'; // Red (danger state)
+text: '#F9FAFB'; // Ghost White
+textSecondary: '#9CA3AF'; // Cool Gray
+surface: 'rgba(31, 41, 55, 0.5)'; // Glass cards
 ```
 
 ### Typography (Inter Font)
+
 ```typescript
 h1: Inter_700Bold, 32px
 h2: Inter_600SemiBold, 24px
@@ -32,11 +34,13 @@ button: Inter_600SemiBold, 16px
 ```
 
 ### Spacing (8px grid)
+
 ```typescript
 xs: 4, sm: 8, md: 16, lg: 24, xl: 32, xxl: 48
 ```
 
 ### Key Components
+
 - **Gradient Button**: `LinearGradient` with `[#34D399, #A3E635]`
 - **Glass Card**: `BlurView` with `surface` background
 - **Progress Bar**: Color-coded (green → amber → red) based on threshold %
@@ -45,6 +49,7 @@ xs: 4, sm: 8, md: 16, lg: 24, xl: 32, xxl: 48
 ## 📐 Architecture Principles
 
 ### File Structure
+
 ```
 src/
 ├── theme/        # Design tokens (colors, typography, spacing)
@@ -56,6 +61,7 @@ src/
 ```
 
 ### Code Organization Rules
+
 1. **Single Responsibility**: One concern per component/service/hook
 2. **Business Logic**: In services & hooks, NOT in components
 3. **Type Safety**: Strict TypeScript, NO `any` types
@@ -66,6 +72,7 @@ src/
 ## 🔧 Critical Implementation Patterns
 
 ### Component Structure (ALWAYS use this)
+
 ```typescript
 import { colors, spacing, typography } from '@/theme';
 
@@ -74,13 +81,13 @@ interface Props { /* typed props */ }
 export const Component: React.FC<Props> = ({ prop }) => {
   // 1. Hooks
   const [state, setState] = useState();
-  
+
   // 2. Callbacks
   const handleAction = useCallback(() => {}, [deps]);
-  
+
   // 3. Effects
   useEffect(() => {}, []);
-  
+
   // 4. Render
   return <View style={styles.container}>{/* JSX */}</View>;
 };
@@ -92,6 +99,7 @@ const styles = StyleSheet.create({
 ```
 
 ### API Integration (OpenAI Vision)
+
 ```typescript
 // MUST include:
 // 1. Retry logic with exponential backoff (3 attempts: 1s, 2s, 4s)
@@ -111,6 +119,7 @@ for (let attempt = 1; attempt <= 3; attempt++) {
 ```
 
 ### Error Handling (REQUIRED)
+
 ```typescript
 // 1. Wrap ALL async operations
 try {
@@ -136,6 +145,7 @@ if (status !== 'granted') {
 ### UI/UX Standards (REQUIRED)
 
 **Loading States** (every async operation):
+
 ```typescript
 {isLoading && (
   <ActivityIndicator size="large" color={colors.primary} />
@@ -144,6 +154,7 @@ if (status !== 'granted') {
 ```
 
 **Gradient Buttons**:
+
 ```typescript
 <Pressable style={({ pressed }) => ({ opacity: pressed ? 0.8 : 1 })}>
   <LinearGradient colors={colors.primaryGradient}>
@@ -153,6 +164,7 @@ if (status !== 'granted') {
 ```
 
 **Glass Cards**:
+
 ```typescript
 <BlurView blurType="dark" blurAmount={10} style={styles.glass}>
   {children}
@@ -167,6 +179,7 @@ styles.glass = {
 ```
 
 **Accessibility** (WCAG AA):
+
 ```typescript
 <Pressable
   accessible={true}
@@ -179,6 +192,7 @@ styles.glass = {
 ## 📋 When Suggesting Code
 
 ### ALWAYS Include:
+
 1. ✅ Import theme values (`colors`, `spacing`, `typography`)
 2. ✅ Loading & error states
 3. ✅ TypeScript types/interfaces
@@ -188,6 +202,7 @@ styles.glass = {
 7. ✅ Comments for complex logic
 
 ### NEVER:
+
 1. ❌ Hardcode colors, spacing, or typography
 2. ❌ Use `any` type in TypeScript
 3. ❌ Skip loading states for async operations

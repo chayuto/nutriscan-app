@@ -33,10 +33,7 @@ export interface NutritionReport {
   imageUri?: string;
 }
 
-export type NutrientKey = keyof Omit<
-  NutritionData,
-  'servingSize' | 'servingsPerContainer'
->;
+export type NutrientKey = keyof Omit<NutritionData, 'servingSize' | 'servingsPerContainer'>;
 
 export interface NutrientInfo {
   key: NutrientKey;

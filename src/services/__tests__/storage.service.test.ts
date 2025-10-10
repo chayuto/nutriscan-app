@@ -1,6 +1,6 @@
 /**
  * Storage Service - Unit Tests
- * 
+ *
  * Tests validation, retry logic, error handling, and graceful fallbacks
  */
 
@@ -17,7 +17,7 @@ describe('StorageService', () => {
   beforeEach(() => {
     // Create fresh instance for each test
     storageService = new StorageService();
-    
+
     // Clear all mocks
     jest.clearAllMocks();
   });
@@ -53,9 +53,7 @@ describe('StorageService', () => {
         calories: -100, // Invalid!
       };
 
-      await expect(
-        storageService.saveThresholds(invalidThresholds)
-      ).rejects.toThrow(StorageError);
+      await expect(storageService.saveThresholds(invalidThresholds)).rejects.toThrow(StorageError);
 
       // Should not attempt to save
       expect(SecureStore.setItemAsync).not.toHaveBeenCalled();
@@ -64,12 +62,10 @@ describe('StorageService', () => {
     it('should reject invalid thresholds (non-numeric values)', async () => {
       const invalidThresholds = {
         ...validThresholds,
-        protein: 'fifty' as any, // Invalid!
+        protein: 'fifty' as unknown as number, // Invalid!
       };
 
-      await expect(
-        storageService.saveThresholds(invalidThresholds)
-      ).rejects.toThrow(StorageError);
+      await expect(storageService.saveThresholds(invalidThresholds)).rejects.toThrow(StorageError);
 
       expect(SecureStore.setItemAsync).not.toHaveBeenCalled();
     });
@@ -89,13 +85,9 @@ describe('StorageService', () => {
 
     it('should throw StorageError after max retries', async () => {
       // Fail all 3 attempts
-      (SecureStore.setItemAsync as jest.Mock).mockRejectedValue(
-        new Error('Storage unavailable')
-      );
+      (SecureStore.setItemAsync as jest.Mock).mockRejectedValue(new Error('Storage unavailable'));
 
-      await expect(
-        storageService.saveThresholds(validThresholds)
-      ).rejects.toThrow(StorageError);
+      await expect(storageService.saveThresholds(validThresholds)).rejects.toThrow(StorageError);
 
       expect(SecureStore.setItemAsync).toHaveBeenCalledTimes(3);
     });
@@ -134,9 +126,7 @@ describe('StorageService', () => {
 
     it('should return defaults when stored data is corrupted', async () => {
       // Invalid JSON
-      (SecureStore.getItemAsync as jest.Mock).mockResolvedValueOnce(
-        '{invalid json}'
-      );
+      (SecureStore.getItemAsync as jest.Mock).mockResolvedValueOnce('{invalid json}');
 
       const result = await storageService.loadThresholds();
 
@@ -151,9 +141,7 @@ describe('StorageService', () => {
         // Missing other fields
       };
 
-      (SecureStore.getItemAsync as jest.Mock).mockResolvedValueOnce(
-        JSON.stringify(invalidData)
-      );
+      (SecureStore.getItemAsync as jest.Mock).mockResolvedValueOnce(JSON.stringify(invalidData));
 
       const result = await storageService.loadThresholds();
 
@@ -161,9 +149,7 @@ describe('StorageService', () => {
     });
 
     it('should return defaults on storage error (graceful fallback)', async () => {
-      (SecureStore.getItemAsync as jest.Mock).mockRejectedValue(
-        new Error('Storage unavailable')
-      );
+      (SecureStore.getItemAsync as jest.Mock).mockRejectedValue(new Error('Storage unavailable'));
 
       // Should NOT throw - graceful fallback
       const result = await storageService.loadThresholds();
@@ -240,9 +226,7 @@ describe('StorageService', () => {
     });
 
     it('should return false on error (graceful fallback)', async () => {
-      (SecureStore.getItemAsync as jest.Mock).mockRejectedValue(
-        new Error('Storage unavailable')
-      );
+      (SecureStore.getItemAsync as jest.Mock).mockRejectedValue(new Error('Storage unavailable'));
 
       const result = await storageService.hasStoredThresholds();
 
@@ -257,9 +241,7 @@ describe('StorageService', () => {
         fiber: 0, // User doesn't care about fiber
       };
 
-      await expect(
-        storageService.saveThresholds(thresholdsWithZero)
-      ).rejects.toThrow(StorageError); // Zero is not valid (must be positive)
+      await expect(storageService.saveThresholds(thresholdsWithZero)).rejects.toThrow(StorageError); // Zero is not valid (must be positive)
     });
 
     it('should handle very large values', async () => {

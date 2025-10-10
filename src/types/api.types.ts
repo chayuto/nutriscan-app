@@ -6,7 +6,9 @@ export interface OpenAIRequest {
   model: string;
   messages: Array<{
     role: 'system' | 'user';
-    content: string | Array<{ type: string; text?: string; image_url?: any }>;
+    content:
+      | string
+      | Array<{ type: string; text?: string; image_url?: { url: string; detail?: string } }>;
   }>;
   max_tokens: number;
   temperature: number;

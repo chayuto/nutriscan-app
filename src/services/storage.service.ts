@@ -1,6 +1,6 @@
 /**
  * Storage Service - Production-Grade Implementation
- * 
+ *
  * Provides secure, persistent storage for user settings using expo-secure-store.
  * Includes validation, retry logic, error handling, and graceful fallbacks.
  */
@@ -82,10 +82,7 @@ class StorageService implements IStorageService {
    * Retry logic for transient storage failures
    * Handles temporary issues like device busy, lock screen, etc.
    */
-  private async withRetry<T>(
-    operation: () => Promise<T>,
-    operationName: string
-  ): Promise<T> {
+  private async withRetry<T>(operation: () => Promise<T>, operationName: string): Promise<T> {
     let lastError: Error | undefined;
 
     for (let attempt = 1; attempt <= this.MAX_RETRIES; attempt++) {
@@ -93,7 +90,7 @@ class StorageService implements IStorageService {
         return await operation();
       } catch (error) {
         lastError = error instanceof Error ? error : new Error(String(error));
-        
+
         if (attempt < this.MAX_RETRIES) {
           // Exponential backoff: 100ms, 200ms, 400ms
           const delay = this.RETRY_DELAY_MS * Math.pow(2, attempt - 1);
@@ -112,7 +109,7 @@ class StorageService implements IStorageService {
 
   /**
    * Save user's custom thresholds to secure storage
-   * 
+   *
    * @param thresholds - User's personalized daily nutrition limits
    * @throws {StorageError} If validation fails or storage is unavailable
    */
@@ -132,7 +129,7 @@ class StorageService implements IStorageService {
         await SecureStore.setItemAsync(STORAGE_KEYS.THRESHOLDS, jsonData);
       }, 'save thresholds');
 
-      console.log('✅ Thresholds saved successfully');
+      console.warn('✅ Thresholds saved successfully');
     } catch (error) {
       console.error('❌ Failed to save thresholds:', error);
       throw error;
@@ -141,7 +138,7 @@ class StorageService implements IStorageService {
 
   /**
    * Load user's custom thresholds from secure storage
-   * 
+   *
    * @returns User's thresholds if found, otherwise default FDA guidelines
    * @note Never throws - returns defaults on any error for graceful UX
    */
@@ -153,19 +150,19 @@ class StorageService implements IStorageService {
 
       // No stored data - return defaults
       if (!jsonData) {
-        console.log('ℹ️ No stored thresholds found, using defaults');
+        console.warn('ℹ️ No stored thresholds found, using defaults');
         return DEFAULT_THRESHOLDS;
       }
 
       // Parse and validate
       const parsedData = JSON.parse(jsonData);
-      
+
       if (!this.validateThresholds(parsedData)) {
         console.warn('⚠️ Stored thresholds corrupted, using defaults');
         return DEFAULT_THRESHOLDS;
       }
 
-      console.log('✅ Thresholds loaded successfully');
+      console.warn('✅ Thresholds loaded successfully');
       return parsedData;
     } catch (error) {
       // Graceful fallback - never break the app
@@ -184,14 +181,10 @@ class StorageService implements IStorageService {
         await SecureStore.deleteItemAsync(STORAGE_KEYS.THRESHOLDS);
       }, 'clear thresholds');
 
-      console.log('✅ Thresholds cleared successfully');
+      console.warn('✅ Thresholds cleared successfully');
     } catch (error) {
       console.error('❌ Failed to clear thresholds:', error);
-      throw new StorageError(
-        'Failed to clear thresholds',
-        'clear',
-        error
-      );
+      throw new StorageError('Failed to clear thresholds', 'clear', error);
     }
   }
 
@@ -233,7 +226,7 @@ class StorageService implements IStorageService {
           })
         )
       );
-      console.log('🗑️ All storage cleared');
+      console.warn('🗑️ All storage cleared');
     } catch (error) {
       console.error('❌ Failed to clear all storage:', error);
     }
@@ -242,13 +235,13 @@ class StorageService implements IStorageService {
 
 /**
  * Singleton instance - use this throughout the app
- * 
+ *
  * @example
  * import { storageService } from '@/services/storage.service';
- * 
+ *
  * // Save thresholds
  * await storageService.saveThresholds(newThresholds);
- * 
+ *
  * // Load thresholds
  * const thresholds = await storageService.loadThresholds();
  */

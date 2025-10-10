@@ -46,12 +46,14 @@ nutriscan-app/
 ## Core Architecture Principles
 
 ### 1. Separation of Concerns
+
 - **Screens**: Pure UI, no business logic
 - **Hooks**: Reusable stateful logic
 - **Services**: External integrations (API, storage)
 - **Utils**: Pure functions, no side effects
 
 ### 2. Data Flow
+
 ```
 User Action → Hook → Service → API/Storage
                 ↓
@@ -63,11 +65,13 @@ User Action → Hook → Service → API/Storage
 ### 3. State Management Strategy
 
 **Local State** (useState):
+
 - Component-specific UI state (loading, errors)
 - Form inputs
 - Modal visibility
 
 **Context API**:
+
 - User thresholds (global)
 - Theme preferences
 - App settings
@@ -77,17 +81,20 @@ User Action → Hook → Service → API/Storage
 ## Key Modules
 
 ### OpenAI Service
+
 - Handles image upload and analysis
 - Implements retry logic with exponential backoff
 - Validates API responses
 - Manages timeout and rate limiting
 
 ### Storage Service
+
 - Abstracts expo-secure-store
 - Handles serialization/deserialization
 - Provides type-safe getters/setters
 
 ### Image Service
+
 - Compresses images before upload
 - Converts to base64
 - Handles permissions
@@ -95,6 +102,7 @@ User Action → Hook → Service → API/Storage
 ## Navigation Strategy
 
 **Single-file approach for MVP** (App.tsx):
+
 - Use `useState` to track current view
 - Conditional rendering of screens
 - Pass props down
