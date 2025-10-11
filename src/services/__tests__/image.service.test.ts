@@ -66,6 +66,8 @@ describe('ImageService', () => {
         exists: true,
         size: 500 * 1024, // 500KB (under target)
         uri: mockCompressedUri,
+        isDirectory: false,
+        modificationTime: Date.now(),
       });
 
       mockManipulateAsync.mockResolvedValue({
@@ -190,6 +192,8 @@ describe('ImageService', () => {
         exists: true,
         size: 900 * 1024, // Always > 800KB
         uri: mockCompressedUri,
+        isDirectory: false,
+        modificationTime: Date.now(),
       });
 
       await expect(
@@ -229,6 +233,8 @@ describe('ImageService', () => {
     it('should throw FILE_NOT_FOUND for invalid URI', async () => {
       mockGetInfoAsync.mockResolvedValue({
         exists: false,
+        uri: '',
+        isDirectory: false,
       });
 
       await expect(service.compressImage(mockUri)).rejects.toThrow(ImageError);
@@ -243,6 +249,10 @@ describe('ImageService', () => {
     beforeEach(() => {
       mockGetInfoAsync.mockResolvedValue({
         exists: true,
+        uri: mockUri,
+        size: 100 * 1024,
+        isDirectory: false,
+        modificationTime: Date.now(),
       });
       mockReadAsStringAsync.mockResolvedValue(mockBase64);
     });
@@ -268,6 +278,8 @@ describe('ImageService', () => {
     it('should throw FILE_NOT_FOUND if file missing', async () => {
       mockGetInfoAsync.mockResolvedValue({
         exists: false,
+        uri: '',
+        isDirectory: false,
       });
 
       await expect(service.convertToBase64(mockUri)).rejects.toThrow(ImageError);
@@ -279,6 +291,10 @@ describe('ImageService', () => {
     it('should validate correct file:// URI', async () => {
       mockGetInfoAsync.mockResolvedValue({
         exists: true,
+        uri: 'file://test.jpg',
+        size: 100 * 1024,
+        isDirectory: false,
+        modificationTime: Date.now(),
       });
 
       const result = await service.validateImageUri('file://test.jpg');
@@ -302,6 +318,8 @@ describe('ImageService', () => {
     it('should throw FILE_NOT_FOUND if file does not exist', async () => {
       mockGetInfoAsync.mockResolvedValue({
         exists: false,
+        uri: '',
+        isDirectory: false,
       });
 
       await expect(service.validateImageUri('file://missing.jpg')).rejects.toThrow(ImageError);
@@ -347,9 +365,14 @@ describe('ImageService', () => {
       mockGetInfoAsync.mockResolvedValue({
         exists: true,
         size: 500 * 1024,
+        uri: 'file://test-image-compressed.jpg',
+        isDirectory: false,
+        modificationTime: Date.now(),
       });
       mockManipulateAsync.mockResolvedValue({
         uri: 'file://compressed.jpg',
+        width: 1024,
+        height: 768,
       });
     });
 
