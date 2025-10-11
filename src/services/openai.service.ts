@@ -133,12 +133,17 @@ export class OpenAIService {
       }
 
       const data = await response.json();
+      
+      // Log full OpenAI API response
+      console.warn('📡 [OpenAI] Full API Response:', JSON.stringify(data, null, 2));
+      
       const content = data.choices?.[0]?.message?.content;
 
       if (!content) {
         throw new Error('No content in OpenAI response');
       }
 
+      console.warn('📝 [OpenAI] Extracted content from response');
       return content;
     } catch (error) {
       clearTimeout(timeout);
