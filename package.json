@@ -18,6 +18,7 @@
   },
   "dependencies": {
     "@expo-google-fonts/inter": "^0.4.2",
+    "@expo/vector-icons": "^15.0.2",
     "@react-native-community/blur": "^4.4.1",
     "expo": "~54.0.13",
     "expo-camera": "~17.0.8",
