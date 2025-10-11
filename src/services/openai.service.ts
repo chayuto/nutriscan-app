@@ -165,26 +165,38 @@ export class OpenAIService {
     return `You are a nutrition label analyzer for Australian food labels. Extract nutritional values from the "per 100g" or "per 100mL" column ONLY.
 
 CRITICAL INSTRUCTIONS:
-1. Look for the nutrition information table
-2. Find the column labeled "per 100g" or "per 100mL" (NOT "per serving")
-3. Extract values ONLY from that column
-4. Australian labels typically have TWO columns: "per serving" and "per 100g" - USE THE "per 100g" column
+1. First, check if this is a nutrition label. If NOT, return an error response (see format below)
+2. Look for the nutrition information table
+3. Find the column labeled "per 100g" or "per 100mL" (NOT "per serving")
+4. Extract values ONLY from that column
+5. Australian labels typically have TWO columns: "per serving" and "per 100g" - USE THE "per 100g" column
 
-Return ONLY valid JSON in this exact format:
+Return ONLY valid JSON in ONE of these formats:
+
+SUCCESS (nutrition label found):
 {
-  "calories": <number or null>,
-  "protein": <number or null>,
-  "fat": <number or null>,
-  "saturatedFat": <number or null>,
-  "carbohydrates": <number or null>,
-  "sugars": <number or null>,
-  "fiber": <number or null>,
-  "sodium": <number or null>,
-  "servingSize": "<string or null>",
-  "servingsPerContainer": <number or null>
+  "success": true,
+  "data": {
+    "calories": <number or null>,
+    "protein": <number or null>,
+    "fat": <number or null>,
+    "saturatedFat": <number or null>,
+    "carbohydrates": <number or null>,
+    "sugars": <number or null>,
+    "fiber": <number or null>,
+    "sodium": <number or null>,
+    "servingSize": "<string or null>",
+    "servingsPerContainer": <number or null>
+  }
 }
 
-Rules:
+ERROR (not a nutrition label):
+{
+  "success": false,
+  "error": "<brief description of what was found instead>"
+}
+
+Rules for SUCCESS case:
 - Extract from "per 100g" or "per 100mL" column ONLY (ignore "per serving" column)
 - All values must be as shown in the per 100g/100mL column
 - Calories is energy in kJ or kcal (if only kJ, convert: kJ ÷ 4.184 = kcal)
@@ -196,18 +208,29 @@ Rules:
 - Round to 1 decimal place
 - Do not include units in numeric values
 
-Example Australian label extraction:
+Examples:
+
+SUCCESS - Australian label:
 {
-  "calories": 2094,
-  "protein": 3.2,
-  "fat": 15.5,
-  "saturatedFat": 8.1,
-  "carbohydrates": 68.4,
-  "sugars": 12.5,
-  "fiber": 2.3,
-  "sodium": 310,
-  "servingSize": "30g",
-  "servingsPerContainer": 10
+  "success": true,
+  "data": {
+    "calories": 2094,
+    "protein": 3.2,
+    "fat": 15.5,
+    "saturatedFat": 8.1,
+    "carbohydrates": 68.4,
+    "sugars": 12.5,
+    "fiber": 2.3,
+    "sodium": 310,
+    "servingSize": "30g",
+    "servingsPerContainer": 10
+  }
+}
+
+ERROR - Not a nutrition label:
+{
+  "success": false,
+  "error": "This is a medical test kit, not a food nutrition label"
 }`;
   }
 
@@ -226,17 +249,42 @@ Example Australian label extraction:
         content.match(/```json\n([\s\S]*?)\n```/) || content.match(/```\n([\s\S]*?)\n```/);
       const jsonStr = jsonMatch ? jsonMatch[1] : content;
 
-      const data = JSON.parse(jsonStr);
+      const response = JSON.parse(jsonStr);
 
-      // Log parsed data
-      console.warn('📊 [OpenAI] Parsed nutrition data:', JSON.stringify(data, null, 2));
+      // Log parsed response
+      console.warn('📊 [OpenAI] Parsed response:', JSON.stringify(response, null, 2));
 
-      // Validate structure
-      if (!this.isValidNutritionData(data)) {
-        throw new Error('Invalid nutrition data structure from API');
+      // Check if this is the new structured format with success flag
+      if ('success' in response) {
+        if (!response.success) {
+          // AI determined this is not a nutrition label
+          const errorMessage = response.error || 'Not a nutrition label';
+          console.warn('⚠️ [OpenAI] AI identified non-nutrition label:', errorMessage);
+          throw new Error(errorMessage);
+        }
+
+        // Extract data from successful response
+        if (!response.data) {
+          throw new Error('Success response missing data field');
+        }
+
+        const data = response.data;
+
+        if (!this.isValidNutritionData(data)) {
+          throw new Error('Invalid nutrition data structure from API');
+        }
+
+        return data;
       }
 
-      return data;
+      // Legacy format support (direct nutrition data)
+      // This handles responses that don't have the success wrapper
+      if (this.isValidNutritionData(response)) {
+        console.warn('⚠️ [OpenAI] Using legacy response format (no success wrapper)');
+        return response;
+      }
+
+      throw new Error('Invalid response structure - missing success flag or nutrition data');
     } catch (error) {
       console.error('❌ [OpenAI] Failed to parse response. Full content:', content);
       throw new Error(
@@ -280,6 +328,19 @@ Example Australian label extraction:
     }
 
     const message = error.message.toLowerCase();
+
+    // Non-retryable: AI identified non-nutrition label
+    if (
+      message.includes('not a nutrition label') ||
+      message.includes('not appear to be') ||
+      message.includes('medical test') ||
+      message.includes('not a food') ||
+      message.includes('please provide') ||
+      message.includes('this is a') ||
+      message.includes('this image is')
+    ) {
+      return false;
+    }
 
     // Retryable: timeouts, rate limits, server errors
     if (

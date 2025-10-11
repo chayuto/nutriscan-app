@@ -151,7 +151,7 @@ describe('OpenAIService', () => {
       } as Response);
 
       await expect(openAIService.analyzeImage(testBase64)).rejects.toThrow(
-        'Invalid nutrition data structure'
+        'Invalid response structure - missing success flag or nutrition data'
       );
     });
   });
