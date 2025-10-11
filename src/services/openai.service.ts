@@ -157,7 +157,13 @@ export class OpenAIService {
    * @private
    */
   private getSystemPrompt(): string {
-    return `You are a nutrition label analyzer. Extract nutritional values per 100g from food labels.
+    return `You are a nutrition label analyzer for Australian food labels. Extract nutritional values from the "per 100g" or "per 100mL" column ONLY.
+
+CRITICAL INSTRUCTIONS:
+1. Look for the nutrition information table
+2. Find the column labeled "per 100g" or "per 100mL" (NOT "per serving")
+3. Extract values ONLY from that column
+4. Australian labels typically have TWO columns: "per serving" and "per 100g" - USE THE "per 100g" column
 
 Return ONLY valid JSON in this exact format:
 {
@@ -174,23 +180,27 @@ Return ONLY valid JSON in this exact format:
 }
 
 Rules:
-- All values in grams (g) or milligrams (mg)
-- Convert sodium to mg if shown in g
-- Use null if value not found
-- No explanatory text, only JSON
+- Extract from "per 100g" or "per 100mL" column ONLY (ignore "per serving" column)
+- All values must be as shown in the per 100g/100mL column
+- Calories is energy in kJ or kcal (if only kJ, convert: kJ ÷ 4.184 = kcal)
+- Sodium should be in mg (convert from g if needed: 1g = 1000mg)
+- Fiber may be labeled as "Dietary Fibre" or "Fibre"
+- Saturated Fat may be labeled as "Saturated" under "Fat"
+- Use null if value not found in the per 100g column
+- No explanatory text, ONLY JSON
 - Round to 1 decimal place
-- Do not include units in values
+- Do not include units in numeric values
 
-Example:
+Example Australian label extraction:
 {
-  "calories": 250,
-  "protein": 3.5,
+  "calories": 2094,
+  "protein": 3.2,
   "fat": 15.5,
-  "saturatedFat": 8.0,
-  "carbohydrates": 28.0,
+  "saturatedFat": 8.1,
+  "carbohydrates": 68.4,
   "sugars": 12.5,
-  "fiber": 2.0,
-  "sodium": 300,
+  "fiber": 2.3,
+  "sodium": 310,
   "servingSize": "30g",
   "servingsPerContainer": 10
 }`;
@@ -203,12 +213,18 @@ Example:
    */
   private parseResponse(content: string): NutritionData {
     try {
+      // Log raw AI response for debugging
+      console.warn('🤖 [OpenAI] Raw AI Response (first 500 chars):', content.substring(0, 500));
+
       // Extract JSON from markdown code blocks if present
       const jsonMatch =
         content.match(/```json\n([\s\S]*?)\n```/) || content.match(/```\n([\s\S]*?)\n```/);
       const jsonStr = jsonMatch ? jsonMatch[1] : content;
 
       const data = JSON.parse(jsonStr);
+
+      // Log parsed data
+      console.warn('📊 [OpenAI] Parsed nutrition data:', JSON.stringify(data, null, 2));
 
       // Validate structure
       if (!this.isValidNutritionData(data)) {
@@ -217,7 +233,7 @@ Example:
 
       return data;
     } catch (error) {
-      console.error('Failed to parse OpenAI response:', content);
+      console.error('❌ [OpenAI] Failed to parse response. Full content:', content);
       throw new Error(
         `Failed to parse API response: ${error instanceof Error ? error.message : 'Unknown error'}`
       );
