@@ -228,7 +228,7 @@ export const ThresholdEditor: React.FC<ThresholdEditorProps> = ({
 const styles = StyleSheet.create({
   card: {
     flex: 1,
-    maxHeight: '90%',
+    maxHeight: '95%', // Increased to show more content
   },
   header: {
     marginBottom: spacing.lg,
@@ -254,7 +254,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingBottom: spacing.md,
+    paddingBottom: spacing.xxl, // Increased padding to ensure "Reset to Default" button is fully visible
   },
   inputGroup: {
     marginBottom: spacing.lg,

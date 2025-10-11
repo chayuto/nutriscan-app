@@ -57,7 +57,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
         {/* Header */}
         <View style={styles.header}>
           <Text style={styles.title} testID={`${testID}-title`}>
-            ⚙️ Settings
+            Settings
           </Text>
           <Text style={styles.subtitle} testID={`${testID}-subtitle`}>
             Customize your daily nutrition thresholds
@@ -103,7 +103,7 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingHorizontal: spacing.lg,
     paddingTop: spacing.xl,
-    paddingBottom: spacing.xxl,
+    paddingBottom: 150, // Large padding to ensure all inputs and buttons are fully visible
   },
   header: {
     alignItems: 'center',

@@ -161,8 +161,7 @@ export const NutritionCard: React.FC<NutritionCardProps> = ({
 
 const styles = StyleSheet.create({
   card: {
-    flex: 1,
-    maxHeight: '80%',
+    // Removed maxHeight to allow card to grow with content
   },
   header: {
     marginBottom: spacing.lg,
@@ -200,6 +199,6 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingBottom: spacing.md,
+    paddingBottom: spacing.xxxl, // 64px padding to ensure last item (Sodium) is fully visible
   },
 });

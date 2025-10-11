@@ -107,7 +107,7 @@ describe('SettingsScreen', () => {
 
       // Check header elements
       expect(getByTestId('settings-screen-title')).toBeTruthy();
-      expect(getByText('⚙️ Settings')).toBeTruthy();
+      expect(getByText('Settings')).toBeTruthy();
       expect(getByTestId('settings-screen-subtitle')).toBeTruthy();
       expect(getByText('Customize your daily nutrition thresholds')).toBeTruthy();
 

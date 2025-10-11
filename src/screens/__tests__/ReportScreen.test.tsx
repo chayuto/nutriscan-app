@@ -103,7 +103,7 @@ describe('ReportScreen', () => {
 
       // Info text
       expect(
-        getByText('💡 Tip: Adjust your daily thresholds in Settings to personalize warnings')
+        getByText('Tip: Adjust your daily thresholds in Settings to personalize warnings')
       ).toBeTruthy();
     });
 

@@ -80,7 +80,7 @@ export const ReportScreen: React.FC<ReportScreenProps> = ({
 
         {/* Info Text */}
         <Text style={styles.infoText} testID={`${testID}-info`}>
-          💡 Tip: Adjust your daily thresholds in Settings to personalize warnings
+          Tip: Adjust your daily thresholds in Settings to personalize warnings
         </Text>
       </ScrollView>
 
@@ -105,7 +105,7 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingHorizontal: spacing.lg,
     paddingTop: spacing.xl,
-    paddingBottom: spacing.xxl,
+    paddingBottom: 120, // Large padding to ensure content clears the footer button
   },
   header: {
     alignItems: 'center',
