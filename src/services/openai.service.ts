@@ -11,6 +11,17 @@ import { NutritionData } from '@/types';
 import { OPENAI_API_ENDPOINT, OPENAI_MODEL, MAX_RETRIES, TIMEOUT_MS } from '@/utils';
 
 /**
+ * Custom error for non-nutrition label images
+ * This error should not trigger retries
+ */
+export class NonNutritionLabelError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'NonNutritionLabelError';
+  }
+}
+
+/**
  * OpenAI Service Implementation
  *
  * Provides methods for analyzing nutrition labels using OpenAI Vision API.
@@ -260,7 +271,8 @@ ERROR - Not a nutrition label:
           // AI determined this is not a nutrition label
           const errorMessage = response.error || 'Not a nutrition label';
           console.warn('⚠️ [OpenAI] AI identified non-nutrition label:', errorMessage);
-          throw new Error(errorMessage);
+          // Throw custom error that won't trigger retries
+          throw new NonNutritionLabelError(errorMessage);
         }
 
         // Extract data from successful response
@@ -286,6 +298,12 @@ ERROR - Not a nutrition label:
 
       throw new Error('Invalid response structure - missing success flag or nutrition data');
     } catch (error) {
+      // Re-throw NonNutritionLabelError without wrapping
+      if (error instanceof NonNutritionLabelError) {
+        throw error;
+      }
+
+      // For actual parsing errors, wrap with context
       console.error('❌ [OpenAI] Failed to parse response. Full content:', content);
       throw new Error(
         `Failed to parse API response: ${error instanceof Error ? error.message : 'Unknown error'}`
@@ -324,6 +342,11 @@ ERROR - Not a nutrition label:
    */
   private isRetryableError(error: unknown): boolean {
     if (!(error instanceof Error)) {
+      return false;
+    }
+
+    // Non-retryable: Custom error for non-nutrition labels
+    if (error instanceof NonNutritionLabelError) {
       return false;
     }
 
@@ -377,6 +400,11 @@ ERROR - Not a nutrition label:
    * @private
    */
   private enhanceError(error: Error): Error {
+    // Don't modify custom non-nutrition label errors
+    if (error instanceof NonNutritionLabelError) {
+      return error;
+    }
+
     const message = error.message.toLowerCase();
 
     if (message.includes('timeout') || message.includes('timed out')) {
