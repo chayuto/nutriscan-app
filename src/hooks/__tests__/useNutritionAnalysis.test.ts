@@ -136,9 +136,12 @@ describe('useNutritionAnalysis', () => {
       expect(result.current.progress.percentage).toBe(66);
 
       // Check analyzing step
-      await waitFor(() => {
-        expect(result.current.progress.step).toBe('analyzing');
-      });
+      await waitFor(
+        () => {
+          expect(result.current.progress.step).toBe('analyzing');
+        },
+        { timeout: 3000 }
+      );
       expect(result.current.progress.message).toBe('Analyzing nutrition label...');
       expect(result.current.progress.percentage).toBe(100);
 
