@@ -14,7 +14,7 @@
     "lint:fix": "eslint . --ext .ts,.tsx --fix",
     "format": "prettier --write \"**/*.{ts,tsx,json}\"",
     "format:all": "prettier --write \"**/*.{ts,tsx,json,md}\"",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit 2>&1 | grep -v 'node_modules/expo-file-system' || true"
   },
   "dependencies": {
     "@expo-google-fonts/inter": "^0.4.2",

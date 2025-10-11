@@ -407,7 +407,7 @@ describe('HomeScreen', () => {
 
       // First capture an image
       fireEvent.press(getByTestId('home-screen-camera-button'));
-      
+
       await waitFor(() => {
         expect(mockCapturePhoto).toHaveBeenCalled();
       });
@@ -456,13 +456,13 @@ describe('HomeScreen', () => {
 
       // Button should show "Capture Photo First"
       expect(getByText('Capture Photo First')).toBeTruthy();
-      
+
       // Press retry without capturing image first
       fireEvent.press(getByTestId('home-screen-retry-button'));
 
       // Should show alert
       expect(Alert.alert).toHaveBeenCalledWith('No Image', 'Please capture a photo first.');
-      
+
       // Should not call retry
       expect(mockRetry).not.toHaveBeenCalled();
     });
@@ -500,11 +500,11 @@ describe('HomeScreen', () => {
       );
 
       const settingsButton = getByTestId('home-screen-settings-button');
-      
+
       // Since we're mocking PrimaryButton as Pressable, check if it's disabled
       // The mocked Pressable should have disabled prop
       fireEvent.press(settingsButton);
-      
+
       // If disabled, onNavigateToSettings should not be called
       expect(mockOnNavigateToSettings).not.toHaveBeenCalled();
     });
@@ -529,11 +529,11 @@ describe('HomeScreen', () => {
 
       // Check if loading indicator is shown
       expect(getByText('Loading...')).toBeTruthy();
-      
+
       // Try to press the disabled button
       const cameraButton = getByTestId('home-screen-camera-button');
       fireEvent.press(cameraButton);
-      
+
       // If disabled, capturePhoto should not be called
       expect(mockCapturePhoto).not.toHaveBeenCalled();
     });
@@ -556,11 +556,11 @@ describe('HomeScreen', () => {
 
       // Check if loading indicator is shown
       expect(getByText('Loading...')).toBeTruthy();
-      
+
       // Try to press the disabled button
       const galleryButton = getByTestId('home-screen-gallery-button');
       fireEvent.press(galleryButton);
-      
+
       // If disabled, pickFromGallery should not be called
       expect(mockPickFromGallery).not.toHaveBeenCalled();
     });

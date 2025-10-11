@@ -104,12 +104,7 @@ export const AnalysisProgress: React.FC<AnalysisProgressProps> = ({
                 testID={`${testID}-step-${step.key}`}
                 accessibilityLabel={`${step.label} step ${stepStatus}`}
               />
-              <Text
-                style={[
-                  styles.stepLabel,
-                  (isPassed || isActive) && styles.stepLabelActive,
-                ]}
-              >
+              <Text style={[styles.stepLabel, (isPassed || isActive) && styles.stepLabelActive]}>
                 {step.label}
               </Text>
             </View>

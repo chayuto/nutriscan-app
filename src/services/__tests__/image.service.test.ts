@@ -234,7 +234,7 @@ describe('ImageService', () => {
     beforeEach(() => {
       // Mock file exists
       mockFileExists.mockResolvedValue(true);
-      
+
       // Mock array buffer for base64 conversion
       // Create a simple buffer that will convert to the expected base64
       const encoder = new TextEncoder();
@@ -335,7 +335,7 @@ describe('ImageService', () => {
       // Mock file exists and size
       mockFileExists.mockResolvedValue(true);
       mockFileSize.mockResolvedValue(500 * 1024); // 500KB
-      
+
       mockManipulateAsync.mockResolvedValue({
         uri: 'file://compressed.jpg',
         width: 1024,

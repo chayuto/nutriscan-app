@@ -21,9 +21,7 @@ jest.mock('expo-linear-gradient', () => ({
 describe('AnalysisProgress', () => {
   describe('Rendering', () => {
     it('should render with all elements', () => {
-      const { getByTestId } = render(
-        <AnalysisProgress currentStep="compressing" progress={30} />
-      );
+      const { getByTestId } = render(<AnalysisProgress currentStep="compressing" progress={30} />);
 
       expect(getByTestId('analysis-progress')).toBeTruthy();
       expect(getByTestId('analysis-progress-spinner')).toBeTruthy();
@@ -126,9 +124,7 @@ describe('AnalysisProgress', () => {
 
       const fill = getByTestId('analysis-progress-fill');
       // Check that width style exists and is approximately 50%
-      const widthStyle = fill.props.style.find(
-        (s: { width?: string }) => s.width !== undefined
-      );
+      const widthStyle = fill.props.style.find((s: { width?: string }) => s.width !== undefined);
       expect(widthStyle).toBeDefined();
       expect(widthStyle.width).toMatch(/49\.9|50\.0/); // Approximately 50%
     });
@@ -137,9 +133,7 @@ describe('AnalysisProgress', () => {
       const { getByTestId } = render(<AnalysisProgress currentStep="complete" />);
 
       const fill = getByTestId('analysis-progress-fill');
-      const widthStyle = fill.props.style.find(
-        (s: { width?: string }) => s.width !== undefined
-      );
+      const widthStyle = fill.props.style.find((s: { width?: string }) => s.width !== undefined);
       expect(widthStyle.width).toBe('100%');
     });
   });
@@ -195,9 +189,7 @@ describe('AnalysisProgress', () => {
 
   describe('Complete State', () => {
     it('should show checkmark when complete', () => {
-      const { getByTestId, queryByTestId } = render(
-        <AnalysisProgress currentStep="complete" />
-      );
+      const { getByTestId, queryByTestId } = render(<AnalysisProgress currentStep="complete" />);
 
       expect(getByTestId('analysis-progress-checkmark')).toBeTruthy();
       expect(queryByTestId('analysis-progress-spinner')).toBeNull();
@@ -212,9 +204,7 @@ describe('AnalysisProgress', () => {
 
   describe('In Progress State', () => {
     it('should show loading spinner when in progress', () => {
-      const { getByTestId, queryByTestId } = render(
-        <AnalysisProgress currentStep="analyzing" />
-      );
+      const { getByTestId, queryByTestId } = render(<AnalysisProgress currentStep="analyzing" />);
 
       expect(getByTestId('analysis-progress-spinner')).toBeTruthy();
       expect(queryByTestId('analysis-progress-checkmark')).toBeNull();

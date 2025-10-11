@@ -16,7 +16,7 @@ export interface NutrientProgressBarProps {
 
 /**
  * NutrientProgressBar - Animated progress bar with color-coded zones
- * 
+ *
  * Displays nutrient values per 100g/100ml (Australian nutrition label standard)
  * compared against daily thresholds.
  *

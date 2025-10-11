@@ -58,18 +58,14 @@ describe('CameraButton', () => {
 
   describe('Icons', () => {
     it('should show camera icon for camera mode', () => {
-      const { getByTestId } = render(
-        <CameraButton mode="camera" onPress={mockOnPress} />
-      );
+      const { getByTestId } = render(<CameraButton mode="camera" onPress={mockOnPress} />);
 
       const icon = getByTestId('camera-button-icon');
       expect(icon.props.children).toBe('camera');
     });
 
     it('should show image icon for gallery mode', () => {
-      const { getByTestId } = render(
-        <CameraButton mode="gallery" onPress={mockOnPress} />
-      );
+      const { getByTestId } = render(<CameraButton mode="gallery" onPress={mockOnPress} />);
 
       const icon = getByTestId('camera-button-icon');
       expect(icon.props.children).toBe('image');
@@ -78,9 +74,7 @@ describe('CameraButton', () => {
 
   describe('Press Interaction', () => {
     it('should call onPress when pressed', () => {
-      const { getByTestId } = render(
-        <CameraButton mode="camera" onPress={mockOnPress} />
-      );
+      const { getByTestId } = render(<CameraButton mode="camera" onPress={mockOnPress} />);
 
       fireEvent.press(getByTestId('camera-button-pressable'));
       expect(mockOnPress).toHaveBeenCalledTimes(1);
@@ -184,36 +178,28 @@ describe('CameraButton', () => {
 
   describe('Accessibility', () => {
     it('should have correct accessibility role', () => {
-      const { getByTestId } = render(
-        <CameraButton mode="camera" onPress={mockOnPress} />
-      );
+      const { getByTestId } = render(<CameraButton mode="camera" onPress={mockOnPress} />);
 
       const pressable = getByTestId('camera-button-pressable');
       expect(pressable.props.accessibilityRole).toBe('button');
     });
 
     it('should have correct accessibility label for camera mode', () => {
-      const { getByTestId } = render(
-        <CameraButton mode="camera" onPress={mockOnPress} />
-      );
+      const { getByTestId } = render(<CameraButton mode="camera" onPress={mockOnPress} />);
 
       const pressable = getByTestId('camera-button-pressable');
       expect(pressable.props.accessibilityLabel).toBe('Take Photo');
     });
 
     it('should have correct accessibility label for gallery mode', () => {
-      const { getByTestId } = render(
-        <CameraButton mode="gallery" onPress={mockOnPress} />
-      );
+      const { getByTestId } = render(<CameraButton mode="gallery" onPress={mockOnPress} />);
 
       const pressable = getByTestId('camera-button-pressable');
       expect(pressable.props.accessibilityLabel).toBe('Choose from Gallery');
     });
 
     it('should have accessibility hint for camera mode', () => {
-      const { getByTestId } = render(
-        <CameraButton mode="camera" onPress={mockOnPress} />
-      );
+      const { getByTestId } = render(<CameraButton mode="camera" onPress={mockOnPress} />);
 
       const pressable = getByTestId('camera-button-pressable');
       expect(pressable.props.accessibilityHint).toBe(
@@ -222,9 +208,7 @@ describe('CameraButton', () => {
     });
 
     it('should have accessibility hint for gallery mode', () => {
-      const { getByTestId } = render(
-        <CameraButton mode="gallery" onPress={mockOnPress} />
-      );
+      const { getByTestId } = render(<CameraButton mode="gallery" onPress={mockOnPress} />);
 
       const pressable = getByTestId('camera-button-pressable');
       expect(pressable.props.accessibilityHint).toBe('Opens gallery to select a photo');
@@ -263,18 +247,14 @@ describe('CameraButton', () => {
 
   describe('Labels', () => {
     it('should show correct label for camera mode', () => {
-      const { getByTestId } = render(
-        <CameraButton mode="camera" onPress={mockOnPress} />
-      );
+      const { getByTestId } = render(<CameraButton mode="camera" onPress={mockOnPress} />);
 
       const label = getByTestId('camera-button-label');
       expect(label.props.children).toBe('Take Photo');
     });
 
     it('should show correct label for gallery mode', () => {
-      const { getByTestId } = render(
-        <CameraButton mode="gallery" onPress={mockOnPress} />
-      );
+      const { getByTestId } = render(<CameraButton mode="gallery" onPress={mockOnPress} />);
 
       const label = getByTestId('camera-button-label');
       expect(label.props.children).toBe('Choose from Gallery');

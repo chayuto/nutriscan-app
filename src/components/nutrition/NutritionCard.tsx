@@ -46,7 +46,10 @@ export const NutritionCard: React.FC<NutritionCardProps> = ({
   if (nutritionData.saturatedFat !== null && nutritionData.saturatedFat > thresholds.saturatedFat) {
     exceededNutrients.push('Saturated Fat');
   }
-  if (nutritionData.carbohydrates !== null && nutritionData.carbohydrates > thresholds.carbohydrates) {
+  if (
+    nutritionData.carbohydrates !== null &&
+    nutritionData.carbohydrates > thresholds.carbohydrates
+  ) {
     exceededNutrients.push('Carbohydrates');
   }
   if (nutritionData.sugars !== null && nutritionData.sugars > thresholds.sugars) {

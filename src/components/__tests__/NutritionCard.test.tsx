@@ -14,9 +14,7 @@ jest.mock('../base/GlassCard', () => {
       children: React.ReactNode;
       testID?: string;
       style?: object;
-    }) => (
-      <View testID={testID}>{children}</View>
-    ),
+    }) => <View testID={testID}>{children}</View>,
   };
 });
 

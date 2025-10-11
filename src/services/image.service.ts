@@ -47,7 +47,7 @@ export class ImageService implements IImageService {
 
     try {
       console.warn('[ImageService] 📸 Starting compression for:', uri);
-      
+
       // 1. Validate URI exists
       await this.validateImageUri(uri);
       console.warn('[ImageService] ✅ URI validated');
@@ -127,11 +127,11 @@ export class ImageService implements IImageService {
 
       // Read file as base64 using new File API
       const file = new File(uri);
-      
+
       // Read as ArrayBuffer then convert to base64
       const arrayBuffer = await file.arrayBuffer();
       const bytes = new Uint8Array(arrayBuffer);
-      
+
       // Convert to base64 string
       let binary = '';
       for (let i = 0; i < bytes.length; i++) {

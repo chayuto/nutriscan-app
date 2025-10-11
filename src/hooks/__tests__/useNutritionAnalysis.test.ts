@@ -91,12 +91,12 @@ describe('useNutritionAnalysis', () => {
 
       // Verify result
       expect(nutritionData).toEqual(mockNutritionData);
-      
+
       // Wait for state to update
       await waitFor(() => {
         expect(result.current.lastResult).toEqual(mockNutritionData);
       });
-      
+
       expect(result.current.isAnalyzing).toBe(false);
       expect(result.current.error).toBeNull();
     });
@@ -163,11 +163,11 @@ describe('useNutritionAnalysis', () => {
       const nutritionData = await result.current.analyzeImage(testImageUri);
 
       expect(nutritionData).toBeNull();
-      
+
       await waitFor(() => {
         expect(result.current.error).toBe('Compression failed');
       });
-      
+
       expect(result.current.isAnalyzing).toBe(false);
       expect(result.current.lastResult).toBeNull();
 
@@ -185,11 +185,11 @@ describe('useNutritionAnalysis', () => {
       const nutritionData = await result.current.analyzeImage(testImageUri);
 
       expect(nutritionData).toBeNull();
-      
+
       await waitFor(() => {
         expect(result.current.error).toBe('Conversion failed');
       });
-      
+
       expect(result.current.isAnalyzing).toBe(false);
 
       // Should call compression but not AI analysis
@@ -206,11 +206,11 @@ describe('useNutritionAnalysis', () => {
       const nutritionData = await result.current.analyzeImage(testImageUri);
 
       expect(nutritionData).toBeNull();
-      
+
       await waitFor(() => {
         expect(result.current.error).toBe('AI analysis failed');
       });
-      
+
       expect(result.current.isAnalyzing).toBe(false);
 
       // All steps should be called
@@ -227,7 +227,7 @@ describe('useNutritionAnalysis', () => {
       const nutritionData = await result.current.analyzeImage(testImageUri);
 
       expect(nutritionData).toBeNull();
-      
+
       await waitFor(() => {
         expect(result.current.error).toBe('Failed to analyze image. Please try again.');
       });
@@ -341,7 +341,7 @@ describe('useNutritionAnalysis', () => {
       const retryResult = await result.current.retry();
 
       expect(retryResult).toBeNull();
-      
+
       await waitFor(() => {
         expect(result.current.error).toBe('No previous image to retry');
       });
@@ -374,7 +374,7 @@ describe('useNutritionAnalysis', () => {
       const retryResult = await result.current.retry();
 
       expect(retryResult).toEqual(updatedMockData);
-      
+
       await waitFor(() => {
         expect(result.current.lastResult).toEqual(updatedMockData);
       });
@@ -390,7 +390,7 @@ describe('useNutritionAnalysis', () => {
       const nutritionData = await result.current.analyzeImage('');
 
       expect(nutritionData).toBeNull();
-      
+
       await waitFor(() => {
         expect(result.current.error).toBe('Invalid URI');
       });
@@ -418,7 +418,7 @@ describe('useNutritionAnalysis', () => {
       const nutritionData = await result.current.analyzeImage(testImageUri);
 
       expect(nutritionData).toEqual(nullData);
-      
+
       await waitFor(() => {
         expect(result.current.lastResult).toEqual(nullData);
       });

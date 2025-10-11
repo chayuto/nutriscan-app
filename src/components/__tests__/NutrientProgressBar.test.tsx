@@ -60,25 +60,33 @@ describe('NutrientProgressBar', () => {
 
   describe('Percentage Calculation', () => {
     it('should calculate percentage correctly for low value', () => {
-      const { getByText } = render(<NutrientProgressBar {...defaultProps} value={100} threshold={2000} />);
+      const { getByText } = render(
+        <NutrientProgressBar {...defaultProps} value={100} threshold={2000} />
+      );
 
       expect(getByText('5%')).toBeTruthy();
     });
 
     it('should calculate percentage correctly for 50% value', () => {
-      const { getByText } = render(<NutrientProgressBar {...defaultProps} value={1000} threshold={2000} />);
+      const { getByText } = render(
+        <NutrientProgressBar {...defaultProps} value={1000} threshold={2000} />
+      );
 
       expect(getByText('50%')).toBeTruthy();
     });
 
     it('should calculate percentage correctly for 80% value', () => {
-      const { getByText } = render(<NutrientProgressBar {...defaultProps} value={1600} threshold={2000} />);
+      const { getByText } = render(
+        <NutrientProgressBar {...defaultProps} value={1600} threshold={2000} />
+      );
 
       expect(getByText('80%')).toBeTruthy();
     });
 
     it('should show correct percentage for exceeded value', () => {
-      const { getByText } = render(<NutrientProgressBar {...defaultProps} value={2500} threshold={2000} />);
+      const { getByText } = render(
+        <NutrientProgressBar {...defaultProps} value={2500} threshold={2000} />
+      );
 
       expect(getByText('125%')).toBeTruthy();
     });
@@ -86,27 +94,35 @@ describe('NutrientProgressBar', () => {
 
   describe('Warning Badge', () => {
     it('should not show warning badge when under threshold', () => {
-      const { queryByTestId } = render(<NutrientProgressBar {...defaultProps} value={1500} threshold={2000} />);
+      const { queryByTestId } = render(
+        <NutrientProgressBar {...defaultProps} value={1500} threshold={2000} />
+      );
 
       expect(queryByTestId('nutrient-progress-bar-warning-badge')).toBeNull();
     });
 
     it('should show warning badge when exceeding threshold', () => {
-      const { getByTestId, getByText } = render(<NutrientProgressBar {...defaultProps} value={2100} threshold={2000} />);
+      const { getByTestId, getByText } = render(
+        <NutrientProgressBar {...defaultProps} value={2100} threshold={2000} />
+      );
 
       expect(getByTestId('nutrient-progress-bar-warning-badge')).toBeTruthy();
       expect(getByText('⚠️ OVER')).toBeTruthy();
     });
 
     it('should show warning badge when exactly at threshold', () => {
-      const { queryByTestId } = render(<NutrientProgressBar {...defaultProps} value={2000} threshold={2000} />);
+      const { queryByTestId } = render(
+        <NutrientProgressBar {...defaultProps} value={2000} threshold={2000} />
+      );
 
       // At exactly 100%, should not exceed (not showing badge)
       expect(queryByTestId('nutrient-progress-bar-warning-badge')).toBeNull();
     });
 
     it('should apply exceeded label style when over threshold', () => {
-      const { getByTestId } = render(<NutrientProgressBar {...defaultProps} value={2100} threshold={2000} />);
+      const { getByTestId } = render(
+        <NutrientProgressBar {...defaultProps} value={2100} threshold={2000} />
+      );
 
       const label = getByTestId('nutrient-progress-bar-label');
       expect(label.props.style).toContainEqual(
@@ -119,19 +135,25 @@ describe('NutrientProgressBar', () => {
 
   describe('Value Formatting', () => {
     it('should format value to 1 decimal place', () => {
-      const { getByText } = render(<NutrientProgressBar {...defaultProps} value={250.567} threshold={2000} />);
+      const { getByText } = render(
+        <NutrientProgressBar {...defaultProps} value={250.567} threshold={2000} />
+      );
 
       expect(getByText('250.6 / 2000 kcal per 100g/100ml')).toBeTruthy();
     });
 
     it('should handle integer values', () => {
-      const { getByText } = render(<NutrientProgressBar {...defaultProps} value={250} threshold={2000} />);
+      const { getByText } = render(
+        <NutrientProgressBar {...defaultProps} value={250} threshold={2000} />
+      );
 
       expect(getByText('250.0 / 2000 kcal per 100g/100ml')).toBeTruthy();
     });
 
     it('should handle different units', () => {
-      const { getByText } = render(<NutrientProgressBar {...defaultProps} value={50} threshold={70} unit="g" />);
+      const { getByText } = render(
+        <NutrientProgressBar {...defaultProps} value={50} threshold={70} unit="g" />
+      );
 
       expect(getByText('50.0 / 70 g per 100g/100ml')).toBeTruthy();
     });
@@ -155,14 +177,18 @@ describe('NutrientProgressBar', () => {
     });
 
     it('should have descriptive accessibility label', () => {
-      const { getByTestId } = render(<NutrientProgressBar {...defaultProps} value={250} threshold={2000} unit="kcal" />);
+      const { getByTestId } = render(
+        <NutrientProgressBar {...defaultProps} value={250} threshold={2000} unit="kcal" />
+      );
 
       const progressBar = getByTestId('nutrient-progress-bar-track');
       expect(progressBar.props.accessibilityLabel).toBe('Calories: 250.0 out of 2000 kcal');
     });
 
     it('should have accessibility value with min, max, and current', () => {
-      const { getByTestId } = render(<NutrientProgressBar {...defaultProps} value={250} threshold={2000} />);
+      const { getByTestId } = render(
+        <NutrientProgressBar {...defaultProps} value={250} threshold={2000} />
+      );
 
       const progressBar = getByTestId('nutrient-progress-bar-track');
       expect(progressBar.props.accessibilityValue).toEqual({
@@ -196,28 +222,36 @@ describe('NutrientProgressBar', () => {
 
   describe('Color Zones', () => {
     it('should use safe color for < 50% (green zone)', () => {
-      const { getByTestId } = render(<NutrientProgressBar {...defaultProps} value={800} threshold={2000} />);
+      const { getByTestId } = render(
+        <NutrientProgressBar {...defaultProps} value={800} threshold={2000} />
+      );
 
       // 40% should be in safe zone
       expect(getByTestId('nutrient-progress-bar-fill')).toBeTruthy();
     });
 
     it('should use caution color for 50-80% (yellow zone)', () => {
-      const { getByTestId } = render(<NutrientProgressBar {...defaultProps} value={1200} threshold={2000} />);
+      const { getByTestId } = render(
+        <NutrientProgressBar {...defaultProps} value={1200} threshold={2000} />
+      );
 
       // 60% should be in caution zone
       expect(getByTestId('nutrient-progress-bar-fill')).toBeTruthy();
     });
 
     it('should use danger color for >= 80% (red zone)', () => {
-      const { getByTestId } = render(<NutrientProgressBar {...defaultProps} value={1700} threshold={2000} />);
+      const { getByTestId } = render(
+        <NutrientProgressBar {...defaultProps} value={1700} threshold={2000} />
+      );
 
       // 85% should be in danger zone
       expect(getByTestId('nutrient-progress-bar-fill')).toBeTruthy();
     });
 
     it('should use danger color when exceeded', () => {
-      const { getByTestId } = render(<NutrientProgressBar {...defaultProps} value={2500} threshold={2000} />);
+      const { getByTestId } = render(
+        <NutrientProgressBar {...defaultProps} value={2500} threshold={2000} />
+      );
 
       // 125% should be in danger zone
       expect(getByTestId('nutrient-progress-bar-fill')).toBeTruthy();

@@ -163,10 +163,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
               <Text style={styles.errorTitle}>Something went wrong</Text>
               <Text style={styles.errorMessage}>{errorMessage}</Text>
 
-              <PrimaryButton
-                onPress={handleRetry}
-                testID={`${testID}-retry-button`}
-              >
+              <PrimaryButton onPress={handleRetry} testID={`${testID}-retry-button`}>
                 {lastImageUri ? 'Try Again' : 'Capture Photo First'}
               </PrimaryButton>
             </View>

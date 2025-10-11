@@ -29,7 +29,13 @@ const THRESHOLD_FIELDS: ThresholdField[] = [
   { key: 'calories', label: 'Calories', unit: 'kcal', icon: 'flame', defaultValue: 2000 },
   { key: 'protein', label: 'Protein', unit: 'g', icon: 'fitness', defaultValue: 50 },
   { key: 'fat', label: 'Fat', unit: 'g', icon: 'water', defaultValue: 70 },
-  { key: 'saturatedFat', label: 'Saturated Fat', unit: 'g', icon: 'alert-circle', defaultValue: 20 },
+  {
+    key: 'saturatedFat',
+    label: 'Saturated Fat',
+    unit: 'g',
+    icon: 'alert-circle',
+    defaultValue: 20,
+  },
   { key: 'carbohydrates', label: 'Carbohydrates', unit: 'g', icon: 'nutrition', defaultValue: 275 },
   { key: 'sugars', label: 'Sugars', unit: 'g', icon: 'ice-cream', defaultValue: 50 },
   { key: 'fiber', label: 'Fiber', unit: 'g', icon: 'leaf', defaultValue: 25 },
@@ -68,7 +74,9 @@ export const ThresholdEditor: React.FC<ThresholdEditorProps> = ({
     const timer = setTimeout(() => {
       // Only save if values have changed
       const hasChanged = Object.keys(localValues).some(
-        (key) => localValues[key as keyof NutritionThresholds] !== thresholds[key as keyof NutritionThresholds]
+        (key) =>
+          localValues[key as keyof NutritionThresholds] !==
+          thresholds[key as keyof NutritionThresholds]
       );
 
       if (hasChanged) {
@@ -176,10 +184,7 @@ export const ThresholdEditor: React.FC<ThresholdEditorProps> = ({
                 onBlur={() => setFocusedField(null)}
                 keyboardType="numeric"
                 returnKeyType="done"
-                style={[
-                  styles.input,
-                  focusedField === field.key && styles.inputFocused,
-                ]}
+                style={[styles.input, focusedField === field.key && styles.inputFocused]}
                 testID={`${testID}-input-${field.key}`}
                 accessible={true}
                 accessibilityLabel={`${field.label} threshold`}
@@ -198,10 +203,7 @@ export const ThresholdEditor: React.FC<ThresholdEditorProps> = ({
 
         <Pressable
           onPress={handleReset}
-          style={({ pressed }) => [
-            styles.resetButton,
-            { opacity: pressed ? 0.7 : 1 },
-          ]}
+          style={({ pressed }) => [styles.resetButton, { opacity: pressed ? 0.7 : 1 }]}
           testID={`${testID}-reset-button`}
           accessible={true}
           accessibilityRole="button"
