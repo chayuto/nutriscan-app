@@ -9,6 +9,8 @@
 **Theme**: Neon Clarity (dark mode with glassmorphism)  
 **Flow**: Camera → AI Analysis → Visual Report with Threshold Alerts
 
+**Important**: App focuses on **per 100g/100ml values** from Australian nutrition labels (standard column), NOT serving sizes.
+
 ## 🎨 Design System Quick Reference
 
 ### Colors (NEVER hardcode - import from `@/theme`)
@@ -55,9 +57,9 @@ src/
 ├── theme/        # Design tokens (colors, typography, spacing)
 ├── types/        # TypeScript interfaces & types
 ├── services/     # API & storage (openai, storage, image)
-├── hooks/        # Custom hooks (useCamera, useNutritionAnalysis)
-├── components/   # Reusable UI (NutrientProgressBar, GlassCard)
-└── screens/      # Main screens (Home, Report, Settings)
+├── hooks/        # Custom hooks (useCamera, useThresholds, useNutritionAnalysis, useSettingsForm, usePermissions)
+├── components/   # Reusable UI (8 components: buttons, cards, progress bars, forms)
+└── screens/      # Main screens (HomeScreen, ReportScreen, SettingsScreen)
 ```
 
 ### Code Organization Rules

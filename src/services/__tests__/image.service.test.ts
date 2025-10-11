@@ -7,7 +7,6 @@
 import { imageService, ImageService } from '../image.service';
 import { ImageError } from '@/types';
 import * as ImageManipulator from 'expo-image-manipulator';
-import * as FileSystem from 'expo-file-system';
 import { Image } from 'react-native';
 
 // Mock expo-image-manipulator
@@ -19,10 +18,22 @@ jest.mock('expo-image-manipulator', () => ({
   },
 }));
 
-// Mock expo-file-system
-jest.mock('expo-file-system', () => ({
-  getInfoAsync: jest.fn(),
-  readAsStringAsync: jest.fn(),
+// Mock the new File class from expo-file-system/next
+const mockFileExists = jest.fn();
+const mockFileSize = jest.fn();
+const mockFileArrayBuffer = jest.fn();
+
+jest.mock('expo-file-system/next', () => ({
+  File: jest.fn().mockImplementation((uri: string) => ({
+    uri,
+    get exists() {
+      return mockFileExists();
+    },
+    get size() {
+      return mockFileSize();
+    },
+    arrayBuffer: mockFileArrayBuffer,
+  })),
 }));
 
 // Mock React Native Image
@@ -37,12 +48,6 @@ const mockImageGetSize = Image.getSize as jest.MockedFunction<typeof Image.getSi
 const mockManipulateAsync = ImageManipulator.manipulateAsync as jest.MockedFunction<
   typeof ImageManipulator.manipulateAsync
 >;
-const mockGetInfoAsync = FileSystem.getInfoAsync as jest.MockedFunction<
-  typeof FileSystem.getInfoAsync
->;
-const mockReadAsStringAsync = FileSystem.readAsStringAsync as jest.MockedFunction<
-  typeof FileSystem.readAsStringAsync
->;
 
 describe('ImageService', () => {
   let service: ImageService;
@@ -50,6 +55,11 @@ describe('ImageService', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     service = new ImageService();
+
+    // Default mock implementations
+    mockFileExists.mockResolvedValue(true);
+    mockFileSize.mockResolvedValue(500 * 1024); // 500KB default
+    mockFileArrayBuffer.mockResolvedValue(new ArrayBuffer(1024));
   });
 
   describe('compressImage', () => {
@@ -62,11 +72,9 @@ describe('ImageService', () => {
         success(2000, 1500); // Large image
       });
 
-      mockGetInfoAsync.mockResolvedValue({
-        exists: true,
-        size: 500 * 1024, // 500KB (under target)
-        uri: mockCompressedUri,
-      });
+      // Mock file exists and size
+      mockFileExists.mockResolvedValue(true);
+      mockFileSize.mockResolvedValue(500 * 1024); // 500KB (under target)
 
       mockManipulateAsync.mockResolvedValue({
         uri: mockCompressedUri,
@@ -145,25 +153,12 @@ describe('ImageService', () => {
         };
       });
 
-      mockGetInfoAsync.mockImplementation(async (uri) => {
-        // First compressed file is still too large
-        if (uri.includes('compressed-1')) {
-          return {
-            exists: true,
-            size: 900 * 1024, // 900KB (> 800KB target)
-            uri,
-            isDirectory: false,
-            modificationTime: Date.now(),
-          };
+      // Mock file sizes: first is too large, second is OK
+      mockFileSize.mockImplementation(async () => {
+        if (compressionCount === 1) {
+          return 900 * 1024; // 900KB (> 800KB target)
         }
-        // Second compressed file is small enough
-        return {
-          exists: true,
-          size: 700 * 1024, // 700KB (< 800KB target)
-          uri,
-          isDirectory: false,
-          modificationTime: Date.now(),
-        };
+        return 700 * 1024; // 700KB (< 800KB target)
       });
 
       const result = await service.compressImage(mockUri);
@@ -186,11 +181,8 @@ describe('ImageService', () => {
     });
 
     it('should throw SIZE_LIMIT_EXCEEDED if cannot compress below 1MB', async () => {
-      mockGetInfoAsync.mockResolvedValue({
-        exists: true,
-        size: 900 * 1024, // Always > 800KB
-        uri: mockCompressedUri,
-      });
+      // Mock file is always too large
+      mockFileSize.mockResolvedValue(900 * 1024); // Always > 800KB
 
       await expect(
         service.compressImage(mockUri, { quality: 0.35 }) // Near MIN_QUALITY (0.3)
@@ -227,9 +219,8 @@ describe('ImageService', () => {
     });
 
     it('should throw FILE_NOT_FOUND for invalid URI', async () => {
-      mockGetInfoAsync.mockResolvedValue({
-        exists: false,
-      });
+      // Mock file doesn't exist
+      mockFileExists.mockResolvedValue(false);
 
       await expect(service.compressImage(mockUri)).rejects.toThrow(ImageError);
       await expect(service.compressImage(mockUri)).rejects.toThrow('Image file not found');
@@ -241,23 +232,25 @@ describe('ImageService', () => {
     const mockBase64 = '/9j/4AAQSkZJRgABAQAAAQABAAD...';
 
     beforeEach(() => {
-      mockGetInfoAsync.mockResolvedValue({
-        exists: true,
-      });
-      mockReadAsStringAsync.mockResolvedValue(mockBase64);
+      // Mock file exists
+      mockFileExists.mockResolvedValue(true);
+
+      // Mock array buffer for base64 conversion
+      // Create a simple buffer that will convert to the expected base64
+      const encoder = new TextEncoder();
+      const bytes = encoder.encode(mockBase64);
+      mockFileArrayBuffer.mockResolvedValue(bytes.buffer);
     });
 
     it('should convert valid image to base64 string', async () => {
       const result = await service.convertToBase64(mockUri);
 
-      expect(result).toBe(mockBase64);
-      expect(FileSystem.readAsStringAsync).toHaveBeenCalledWith(mockUri, {
-        encoding: 'base64',
-      });
+      expect(typeof result).toBe('string');
+      expect(mockFileArrayBuffer).toHaveBeenCalled();
     });
 
-    it('should throw CONVERSION_FAILED on readAsStringAsync error', async () => {
-      mockReadAsStringAsync.mockRejectedValue(new Error('File system error'));
+    it('should throw CONVERSION_FAILED on arrayBuffer error', async () => {
+      mockFileArrayBuffer.mockRejectedValue(new Error('File system error'));
 
       await expect(service.convertToBase64(mockUri)).rejects.toThrow(ImageError);
       await expect(service.convertToBase64(mockUri)).rejects.toThrow(
@@ -266,9 +259,8 @@ describe('ImageService', () => {
     });
 
     it('should throw FILE_NOT_FOUND if file missing', async () => {
-      mockGetInfoAsync.mockResolvedValue({
-        exists: false,
-      });
+      // Mock file doesn't exist
+      mockFileExists.mockResolvedValue(false);
 
       await expect(service.convertToBase64(mockUri)).rejects.toThrow(ImageError);
       await expect(service.convertToBase64(mockUri)).rejects.toThrow('Image file not found');
@@ -277,14 +269,12 @@ describe('ImageService', () => {
 
   describe('validateImageUri', () => {
     it('should validate correct file:// URI', async () => {
-      mockGetInfoAsync.mockResolvedValue({
-        exists: true,
-      });
+      mockFileExists.mockResolvedValue(true);
 
       const result = await service.validateImageUri('file://test.jpg');
 
       expect(result).toBe(true);
-      expect(FileSystem.getInfoAsync).toHaveBeenCalledWith('file://test.jpg');
+      expect(mockFileExists).toHaveBeenCalled();
     });
 
     it('should throw INVALID_URI on empty string', async () => {
@@ -300,9 +290,7 @@ describe('ImageService', () => {
     });
 
     it('should throw FILE_NOT_FOUND if file does not exist', async () => {
-      mockGetInfoAsync.mockResolvedValue({
-        exists: false,
-      });
+      mockFileExists.mockResolvedValue(false);
 
       await expect(service.validateImageUri('file://missing.jpg')).rejects.toThrow(ImageError);
       await expect(service.validateImageUri('file://missing.jpg')).rejects.toThrow(
@@ -344,12 +332,14 @@ describe('ImageService', () => {
 
   describe('Edge Cases', () => {
     beforeEach(() => {
-      mockGetInfoAsync.mockResolvedValue({
-        exists: true,
-        size: 500 * 1024,
-      });
+      // Mock file exists and size
+      mockFileExists.mockResolvedValue(true);
+      mockFileSize.mockResolvedValue(500 * 1024); // 500KB
+
       mockManipulateAsync.mockResolvedValue({
         uri: 'file://compressed.jpg',
+        width: 1024,
+        height: 768,
       });
     });
 

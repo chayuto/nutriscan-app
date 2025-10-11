@@ -110,7 +110,9 @@ export function useNutritionAnalysis(): UseNutritionAnalysisReturn {
           percentage: 33,
         });
 
+        console.warn('🔄 About to compress:', imageUri);
         const compressedUri = await imageService.compressImage(imageUri);
+        console.warn('✅ Compression done:', compressedUri);
 
         // Step 2: Convert to base64
         setProgress({
@@ -119,7 +121,9 @@ export function useNutritionAnalysis(): UseNutritionAnalysisReturn {
           percentage: 66,
         });
 
+        console.warn('🔄 About to convert to base64');
         const base64Image = await imageService.convertToBase64(compressedUri);
+        console.warn('✅ Conversion done, base64 length:', base64Image.length);
 
         // Step 3: Analyze with AI
         setProgress({

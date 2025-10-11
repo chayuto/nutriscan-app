@@ -1,6 +1,5 @@
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
 import {
   useFonts,
   Inter_400Regular,
@@ -10,12 +9,35 @@ import {
 } from '@expo-google-fonts/inter';
 import * as SplashScreen from 'expo-splash-screen';
 
-import { colors, spacing, typography } from './src/theme';
+import { HomeScreen, ReportScreen, SettingsScreen } from './src/screens';
+import type { NutritionData } from './src/types/nutrition.types';
 
 // Prevent auto-hide of splash screen
 SplashScreen.preventAutoHideAsync();
 
+/**
+ * App - Main application component with simple navigation
+ *
+ * Navigation Strategy:
+ * - Uses local state for screen management (simple, no external deps)
+ * - Three screens: Home, Report, Settings
+ * - Data passed via props between screens
+ *
+ * Flow:
+ * Home → (capture + analyze) → Report → Back to Home
+ * Home → Settings → Back to Home
+ */
 export default function App() {
+  // Navigation state
+  type Screen = 'home' | 'report' | 'settings';
+  const [currentScreen, setCurrentScreen] = useState<Screen>('home');
+
+  // Report data (passed from Home to Report)
+  const [reportData, setReportData] = useState<{
+    nutritionData: NutritionData;
+    imageUri: string;
+  } | null>(null);
+
   // Load Inter fonts
   const [fontsLoaded, fontError] = useFonts({
     Inter_400Regular,
@@ -35,36 +57,62 @@ export default function App() {
     return null;
   }
 
+  // Navigation handlers
+  const handleAnalysisComplete = (nutritionData: NutritionData, imageUri: string) => {
+    setReportData({ nutritionData, imageUri });
+    setCurrentScreen('report');
+  };
+
+  const handleNavigateToSettings = () => {
+    setCurrentScreen('settings');
+  };
+
+  const handleBackToHome = () => {
+    setCurrentScreen('home');
+  };
+
+  // Render current screen
+  const renderScreen = () => {
+    switch (currentScreen) {
+      case 'home':
+        return (
+          <HomeScreen
+            onAnalysisComplete={handleAnalysisComplete}
+            onNavigateToSettings={handleNavigateToSettings}
+          />
+        );
+
+      case 'report':
+        if (!reportData) {
+          // Fallback if no data (shouldn't happen in normal flow)
+          setCurrentScreen('home');
+          return null;
+        }
+        return (
+          <ReportScreen
+            nutritionData={reportData.nutritionData}
+            imageUri={reportData.imageUri}
+            onBack={handleBackToHome}
+          />
+        );
+
+      case 'settings':
+        return <SettingsScreen onBack={handleBackToHome} />;
+
+      default:
+        return (
+          <HomeScreen
+            onAnalysisComplete={handleAnalysisComplete}
+            onNavigateToSettings={handleNavigateToSettings}
+          />
+        );
+    }
+  };
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>🥗 NutriScan AI</Text>
-      <Text style={styles.subtitle}>Neon Clarity Theme Loaded! ✨</Text>
-      <Text style={styles.body}>Foundation setup complete.</Text>
-      <Text style={styles.body}>Ready to build screens!</Text>
+    <>
+      {renderScreen()}
       <StatusBar style="light" />
-    </View>
+    </>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: spacing.lg,
-  },
-  title: {
-    ...typography.h1,
-    marginBottom: spacing.sm,
-  },
-  subtitle: {
-    ...typography.h3,
-    color: colors.primary,
-    marginBottom: spacing.lg,
-  },
-  body: {
-    ...typography.body,
-    marginBottom: spacing.xs,
-  },
-});

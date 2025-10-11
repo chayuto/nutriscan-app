@@ -8,7 +8,7 @@
  */
 
 import * as ImageManipulator from 'expo-image-manipulator';
-import * as FileSystem from 'expo-file-system';
+import { File } from 'expo-file-system/next';
 import { Image } from 'react-native';
 import { IImageService, CompressionOptions, ImageDimensions, ImageError } from '@/types';
 import { IMAGE_DEFAULTS, ERROR_MESSAGES } from '@/utils';
@@ -46,16 +46,25 @@ export class ImageService implements IImageService {
     } = options;
 
     try {
+      console.warn('[ImageService] 📸 Starting compression for:', uri);
+
       // 1. Validate URI exists
       await this.validateImageUri(uri);
+      console.warn('[ImageService] ✅ URI validated');
 
       // 2. Get current dimensions
       const { width, height } = await this.getImageSize(uri);
+      console.warn('[ImageService] 📏 Image dimensions:', width, 'x', height);
 
       // 3. Calculate resize dimensions (maintain aspect ratio)
       const resize = this.calculateResize(width, height, maxWidth, maxHeight);
+      console.warn(
+        '[ImageService] 🔧 Resize needed:',
+        resize ? `${resize.width}x${resize.height}` : 'No'
+      );
 
       // 4. Perform compression
+      console.warn('[ImageService] 🗜️  Starting manipulateAsync with quality:', quality);
       const result = await ImageManipulator.manipulateAsync(
         uri,
         resize ? [{ resize }] : [], // Only resize if needed
@@ -65,16 +74,14 @@ export class ImageService implements IImageService {
             format === 'jpeg' ? ImageManipulator.SaveFormat.JPEG : ImageManipulator.SaveFormat.PNG,
         }
       );
+      console.warn('[ImageService] ✅ Compression successful:', result.uri);
 
-      // 5. Check file size
-      const fileInfo = await FileSystem.getInfoAsync(result.uri);
+      // 5. Check file size using new File API
+      const file = new File(result.uri);
+      const fileSize = await file.size;
 
       // 6. If still too large and quality can be reduced
-      if (
-        fileInfo.exists &&
-        fileInfo.size > IMAGE_DEFAULTS.TARGET_FILE_SIZE &&
-        quality > IMAGE_DEFAULTS.MIN_QUALITY
-      ) {
+      if (fileSize > IMAGE_DEFAULTS.TARGET_FILE_SIZE && quality > IMAGE_DEFAULTS.MIN_QUALITY) {
         const newQuality = quality * IMAGE_DEFAULTS.QUALITY_REDUCTION_FACTOR;
 
         // Stop if we hit minimum quality threshold
@@ -91,6 +98,7 @@ export class ImageService implements IImageService {
 
       return result.uri;
     } catch (error) {
+      console.error('[ImageService] ❌ Compression failed:', error);
       if (error instanceof ImageError) {
         throw error;
       }
@@ -117,10 +125,19 @@ export class ImageService implements IImageService {
       // Validate before conversion
       await this.validateImageUri(uri);
 
-      // Read file as base64
-      const base64 = await FileSystem.readAsStringAsync(uri, {
-        encoding: 'base64',
-      });
+      // Read file as base64 using new File API
+      const file = new File(uri);
+
+      // Read as ArrayBuffer then convert to base64
+      const arrayBuffer = await file.arrayBuffer();
+      const bytes = new Uint8Array(arrayBuffer);
+
+      // Convert to base64 string
+      let binary = '';
+      for (let i = 0; i < bytes.length; i++) {
+        binary += String.fromCharCode(bytes[i]);
+      }
+      const base64 = btoa(binary);
 
       return base64;
     } catch (error) {
@@ -182,14 +199,22 @@ export class ImageService implements IImageService {
       throw new ImageError(ERROR_MESSAGES.IMAGE_INVALID_URI, 'INVALID_URI');
     }
 
-    // Check file exists
-    const fileInfo = await FileSystem.getInfoAsync(uri);
+    // Check file exists using new File API
+    try {
+      const file = new File(uri);
+      const exists = await file.exists;
 
-    if (!fileInfo.exists) {
-      throw new ImageError(ERROR_MESSAGES.IMAGE_FILE_NOT_FOUND, 'FILE_NOT_FOUND');
+      if (!exists) {
+        throw new ImageError(ERROR_MESSAGES.IMAGE_FILE_NOT_FOUND, 'FILE_NOT_FOUND');
+      }
+
+      return true;
+    } catch (error) {
+      if (error instanceof ImageError) {
+        throw error;
+      }
+      throw new ImageError(ERROR_MESSAGES.IMAGE_FILE_NOT_FOUND, 'FILE_NOT_FOUND', error);
     }
-
-    return true;
   }
 
   /**

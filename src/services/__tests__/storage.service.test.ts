@@ -41,7 +41,7 @@ describe('StorageService', () => {
       await storageService.saveThresholds(validThresholds);
 
       expect(SecureStore.setItemAsync).toHaveBeenCalledWith(
-        '@nutriscan:thresholds',
+        'nutriscan.thresholds',
         JSON.stringify(validThresholds)
       );
       expect(SecureStore.setItemAsync).toHaveBeenCalledTimes(1);
@@ -113,7 +113,7 @@ describe('StorageService', () => {
       const result = await storageService.loadThresholds();
 
       expect(result).toEqual(storedThresholds);
-      expect(SecureStore.getItemAsync).toHaveBeenCalledWith('@nutriscan:thresholds');
+      expect(SecureStore.getItemAsync).toHaveBeenCalledWith('nutriscan.thresholds');
     });
 
     it('should return defaults when no data stored', async () => {
@@ -179,7 +179,7 @@ describe('StorageService', () => {
 
       await storageService.clearThresholds();
 
-      expect(SecureStore.deleteItemAsync).toHaveBeenCalledWith('@nutriscan:thresholds');
+      expect(SecureStore.deleteItemAsync).toHaveBeenCalledWith('nutriscan.thresholds');
       expect(SecureStore.deleteItemAsync).toHaveBeenCalledTimes(1);
     });
 

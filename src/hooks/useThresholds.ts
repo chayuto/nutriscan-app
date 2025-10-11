@@ -43,6 +43,7 @@ import { NutritionThresholds, DEFAULT_THRESHOLDS } from '@/types/nutrition.types
 export interface UseThresholdsReturn {
   thresholds: NutritionThresholds;
   updateThreshold: (key: keyof NutritionThresholds, value: number) => void;
+  saveAll: (newThresholds: NutritionThresholds) => Promise<void>;
   resetToDefaults: () => void;
   isLoading: boolean;
   isSaving: boolean;
@@ -200,9 +201,42 @@ export function useThresholds(): UseThresholdsReturn {
     };
   }, []);
 
+  /**
+   * Save all thresholds immediately (no debounce)
+   * Used when user explicitly clicks "Save Changes"
+   */
+  const saveAll = useCallback(
+    async (newThresholds: NutritionThresholds) => {
+      // Validate all values
+      const hasInvalidValue = Object.values(newThresholds).some(
+        (value) => isNaN(value) || value < 0
+      );
+
+      if (hasInvalidValue) {
+        setError('All thresholds must be positive numbers');
+        return;
+      }
+
+      // Clear any pending debounced save
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+        saveTimeoutRef.current = null;
+      }
+      pendingThresholdsRef.current = null;
+
+      // Update UI immediately
+      setThresholds(newThresholds);
+
+      // Save immediately (no debounce)
+      await saveThresholds(newThresholds);
+    },
+    [saveThresholds]
+  );
+
   return {
     thresholds,
     updateThreshold,
+    saveAll,
     resetToDefaults,
     isLoading,
     isSaving,

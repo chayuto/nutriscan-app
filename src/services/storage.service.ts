@@ -12,10 +12,11 @@ import { isValidThreshold } from '../utils/validators';
 
 /**
  * Storage keys with namespace prefix to avoid collisions
+ * Note: SecureStore only allows alphanumeric, ".", "-", and "_"
  */
 const STORAGE_KEYS = {
-  THRESHOLDS: '@nutriscan:thresholds',
-  APP_VERSION: '@nutriscan:app_version',
+  THRESHOLDS: 'nutriscan.thresholds',
+  APP_VERSION: 'nutriscan.app_version',
 } as const;
 
 /**
@@ -91,6 +92,12 @@ class StorageService implements IStorageService {
       } catch (error) {
         lastError = error instanceof Error ? error : new Error(String(error));
 
+        // Log specific error for debugging
+        console.warn(
+          `[Storage] Attempt ${attempt}/${this.MAX_RETRIES} failed for ${operationName}:`,
+          lastError.message
+        );
+
         if (attempt < this.MAX_RETRIES) {
           // Exponential backoff: 100ms, 200ms, 400ms
           const delay = this.RETRY_DELAY_MS * Math.pow(2, attempt - 1);
@@ -124,14 +131,16 @@ class StorageService implements IStorageService {
     }
 
     try {
+      console.warn('[Storage] Attempting to save thresholds...');
+
       await this.withRetry(async () => {
         const jsonData = JSON.stringify(thresholds);
         await SecureStore.setItemAsync(STORAGE_KEYS.THRESHOLDS, jsonData);
       }, 'save thresholds');
 
-      console.warn('✅ Thresholds saved successfully');
+      console.warn('[Storage] Thresholds saved successfully');
     } catch (error) {
-      console.error('❌ Failed to save thresholds:', error);
+      console.error('[Storage] Failed to save thresholds:', error);
       throw error;
     }
   }
@@ -144,13 +153,15 @@ class StorageService implements IStorageService {
    */
   async loadThresholds(): Promise<NutritionThresholds> {
     try {
+      console.warn('[Storage] Attempting to load thresholds...');
+
       const jsonData = await this.withRetry(async () => {
         return await SecureStore.getItemAsync(STORAGE_KEYS.THRESHOLDS);
       }, 'load thresholds');
 
       // No stored data - return defaults
       if (!jsonData) {
-        console.warn('ℹ️ No stored thresholds found, using defaults');
+        console.warn('[Storage] No stored thresholds found, using defaults');
         return DEFAULT_THRESHOLDS;
       }
 
@@ -158,15 +169,15 @@ class StorageService implements IStorageService {
       const parsedData = JSON.parse(jsonData);
 
       if (!this.validateThresholds(parsedData)) {
-        console.warn('⚠️ Stored thresholds corrupted, using defaults');
+        console.warn('[Storage] Stored thresholds corrupted, using defaults');
         return DEFAULT_THRESHOLDS;
       }
 
-      console.warn('✅ Thresholds loaded successfully');
+      console.warn('[Storage] Thresholds loaded successfully');
       return parsedData;
     } catch (error) {
       // Graceful fallback - never break the app
-      console.warn('⚠️ Failed to load thresholds, using defaults:', error);
+      console.warn('[Storage] Failed to load thresholds, using defaults:', error);
       return DEFAULT_THRESHOLDS;
     }
   }

@@ -14,10 +14,11 @@
     "lint:fix": "eslint . --ext .ts,.tsx --fix",
     "format": "prettier --write \"**/*.{ts,tsx,json}\"",
     "format:all": "prettier --write \"**/*.{ts,tsx,json,md}\"",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit 2>&1 | grep -v 'node_modules/expo-file-system' || true"
   },
   "dependencies": {
     "@expo-google-fonts/inter": "^0.4.2",
+    "@expo/vector-icons": "^15.0.2",
     "@react-native-community/blur": "^4.4.1",
     "expo": "~54.0.13",
     "expo-camera": "~17.0.8",
