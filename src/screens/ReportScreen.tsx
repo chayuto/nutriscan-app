@@ -50,7 +50,7 @@ export const ReportScreen: React.FC<ReportScreenProps> = ({
         {/* Header */}
         <View style={styles.header}>
           <Text style={styles.title} testID={`${testID}-title`}>
-            📊 Nutrition Report
+            Nutrition Report
           </Text>
           <Text style={styles.subtitle} testID={`${testID}-subtitle`}>
             Per 100g/100ml (Australian standard)

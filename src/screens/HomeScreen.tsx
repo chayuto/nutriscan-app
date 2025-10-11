@@ -119,7 +119,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
         {/* Header */}
         <View style={styles.header}>
           <Text style={styles.title} testID={`${testID}-title`}>
-            🥗 NutriScan AI
+            NutriScan AI
           </Text>
           <Text style={styles.subtitle} testID={`${testID}-subtitle`}>
             Scan nutrition labels instantly
@@ -159,7 +159,6 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           {/* Error Display */}
           {errorMessage && !isAnalyzing && (
             <View style={styles.errorContainer} testID={`${testID}-error`}>
-              <Text style={styles.errorIcon}>⚠️</Text>
               <Text style={styles.errorTitle}>Something went wrong</Text>
               <Text style={styles.errorMessage}>{errorMessage}</Text>
 
@@ -177,7 +176,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             disabled={isLoading}
             testID={`${testID}-settings-button`}
           >
-            ⚙️ Settings
+            Settings
           </PrimaryButton>
 
           {lastImageUri && !isAnalyzing && !errorMessage && (
@@ -237,10 +236,6 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     borderWidth: 1,
     borderColor: colors.error,
-  },
-  errorIcon: {
-    fontSize: 48,
-    marginBottom: spacing.md,
   },
   errorTitle: {
     ...typography.h3,

@@ -82,7 +82,7 @@ export const NutrientProgressBar: React.FC<NutrientProgressBarProps> = ({
         </Text>
         {exceeded && (
           <View style={styles.warningBadge} testID={`${testID}-warning-badge`}>
-            <Text style={styles.warningText}>⚠️ OVER</Text>
+            <Text style={styles.warningText}>OVER LIMIT</Text>
           </View>
         )}
       </View>

@@ -107,7 +107,7 @@ describe('NutrientProgressBar', () => {
       );
 
       expect(getByTestId('nutrient-progress-bar-warning-badge')).toBeTruthy();
-      expect(getByText('⚠️ OVER')).toBeTruthy();
+      expect(getByText('OVER LIMIT')).toBeTruthy();
     });
 
     it('should show warning badge when exactly at threshold', () => {

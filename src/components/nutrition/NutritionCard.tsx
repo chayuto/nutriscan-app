@@ -77,7 +77,7 @@ export const NutritionCard: React.FC<NutritionCardProps> = ({
 
       {hasExceededNutrients && (
         <View style={styles.warningContainer} testID={`${testID}-warning`}>
-          <Text style={styles.warningTitle}>⚠️ Warning</Text>
+          <Text style={styles.warningTitle}>Warning</Text>
           <Text style={styles.warningText}>
             {exceededNutrients.length} nutrient{exceededNutrients.length > 1 ? 's' : ''} exceed
             {exceededNutrients.length === 1 ? 's' : ''} your daily limit

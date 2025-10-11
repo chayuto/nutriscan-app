@@ -142,7 +142,7 @@ describe('HomeScreen', () => {
       );
 
       expect(getByTestId('home-screen')).toBeTruthy();
-      expect(getByText('🥗 NutriScan AI')).toBeTruthy();
+      expect(getByText('NutriScan AI')).toBeTruthy();
       expect(getByText('Scan nutrition labels instantly')).toBeTruthy();
       expect(getByTestId('home-screen-camera-button')).toBeTruthy();
       expect(getByTestId('home-screen-gallery-button')).toBeTruthy();

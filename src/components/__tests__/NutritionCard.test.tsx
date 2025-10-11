@@ -169,7 +169,7 @@ describe('NutritionCard', () => {
       );
 
       expect(getByTestId('nutrition-card-warning')).toBeTruthy();
-      expect(getByText('⚠️ Warning')).toBeTruthy();
+      expect(getByText('Warning')).toBeTruthy();
       expect(getByText('1 nutrient exceeds your daily limit')).toBeTruthy();
     });
 

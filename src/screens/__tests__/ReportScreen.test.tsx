@@ -91,7 +91,7 @@ describe('ReportScreen', () => {
       );
 
       // Header
-      expect(getByText('📊 Nutrition Report')).toBeTruthy();
+      expect(getByText('Nutrition Report')).toBeTruthy();
       expect(getByText('Per 100g/100ml (Australian standard)')).toBeTruthy();
 
       // Nutrition card
