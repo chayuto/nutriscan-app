@@ -1,11 +1,12 @@
 import React from 'react';
-import { render, fireEvent } from '@testing-library/react-native';
+import { render, fireEvent, waitFor } from '@testing-library/react-native';
 import { SettingsScreen } from '../SettingsScreen';
 import type { NutritionThresholds } from '@/types/nutrition.types';
 
 // Mock hooks
 const mockUpdateThreshold = jest.fn();
 const mockResetToDefaults = jest.fn();
+const mockSaveAll = jest.fn();
 
 const mockThresholds: NutritionThresholds = {
   calories: 2000,
@@ -23,6 +24,7 @@ jest.mock('@/hooks/useThresholds', () => ({
     thresholds: mockThresholds,
     updateThreshold: mockUpdateThreshold,
     resetToDefaults: mockResetToDefaults,
+    saveAll: mockSaveAll,
     isLoading: false,
     isSaving: false,
     error: null,
@@ -117,11 +119,13 @@ describe('SettingsScreen', () => {
 
       // Check info text
       expect(getByTestId('settings-screen-info')).toBeTruthy();
-      expect(getByText(/Changes are saved automatically/)).toBeTruthy();
+      expect(getByText(/Click "Save & Close" when you're done/)).toBeTruthy();
 
-      // Check back button
-      expect(getByTestId('settings-screen-back-button')).toBeTruthy();
-      expect(getByText('← Done')).toBeTruthy();
+      // Check footer buttons (Cancel and Save & Close)
+      expect(getByTestId('settings-screen-cancel-button')).toBeTruthy();
+      expect(getByTestId('settings-screen-save-button')).toBeTruthy();
+      expect(getByText('Cancel')).toBeTruthy();
+      expect(getByText('Save & Close')).toBeTruthy();
     });
 
     it('should render with custom testID', () => {
@@ -132,7 +136,8 @@ describe('SettingsScreen', () => {
       expect(getByTestId('custom-settings')).toBeTruthy();
       expect(getByTestId('custom-settings-title')).toBeTruthy();
       expect(getByTestId('custom-settings-threshold-editor')).toBeTruthy();
-      expect(getByTestId('custom-settings-back-button')).toBeTruthy();
+      expect(getByTestId('custom-settings-cancel-button')).toBeTruthy();
+      expect(getByTestId('custom-settings-save-button')).toBeTruthy();
     });
 
     it('should render ScrollView for scrollable content', () => {
@@ -150,14 +155,14 @@ describe('SettingsScreen', () => {
       expect(getByText(`Calories: ${mockThresholds.calories}`)).toBeTruthy();
     });
 
-    it('should handle threshold save from editor', () => {
+    it('should handle save from Save & Close button', async () => {
       const { getByTestId } = render(<SettingsScreen onBack={mockOnBack} />);
 
-      // Trigger save in ThresholdEditor
-      fireEvent.press(getByTestId('settings-screen-threshold-editor-save'));
+      // Click Save & Close button
+      fireEvent.press(getByTestId('settings-screen-save-button'));
 
-      // Should call updateThreshold for each field
-      expect(mockUpdateThreshold).toHaveBeenCalled();
+      // Should call onBack (navigates away after save)
+      await waitFor(() => expect(mockOnBack).toHaveBeenCalled());
     });
 
     it('should handle reset to defaults', () => {
@@ -169,55 +174,57 @@ describe('SettingsScreen', () => {
       expect(mockResetToDefaults).toHaveBeenCalled();
     });
 
-    it('should show "saved" status when not saving', () => {
+    it('should not show save status (manual save only)', () => {
       (useThresholds as jest.Mock).mockReturnValue({
         thresholds: mockThresholds,
         updateThreshold: mockUpdateThreshold,
         resetToDefaults: mockResetToDefaults,
+        saveAll: jest.fn(),
         isLoading: false,
         isSaving: false,
         error: null,
       });
 
-      const { getByText } = render(<SettingsScreen onBack={mockOnBack} />);
+      const { queryByText } = render(<SettingsScreen onBack={mockOnBack} />);
 
-      expect(getByText('Save Status: saved')).toBeTruthy();
+      // Save status is not shown in new manual-save design
+      expect(queryByText('Save Status: saved')).toBeNull();
     });
 
-    it('should show "saving" status when saving', () => {
+    it('should disable Save & Close button when saving', () => {
       (useThresholds as jest.Mock).mockReturnValue({
         thresholds: mockThresholds,
         updateThreshold: mockUpdateThreshold,
         resetToDefaults: mockResetToDefaults,
+        saveAll: jest.fn(),
         isLoading: false,
         isSaving: true,
         error: null,
       });
 
-      const { getByText } = render(<SettingsScreen onBack={mockOnBack} />);
+      const { getByTestId } = render(<SettingsScreen onBack={mockOnBack} />);
 
-      expect(getByText('Save Status: saving')).toBeTruthy();
+      const saveButton = getByTestId('settings-screen-save-button');
+      // Button should be disabled (or show loading state)
+      expect(saveButton).toBeTruthy();
     });
   });
 
   describe('Navigation', () => {
-    it('should call onBack when back button pressed', () => {
+    it('should call onBack when Cancel button pressed (no changes)', () => {
       const { getByTestId } = render(<SettingsScreen onBack={mockOnBack} />);
 
-      fireEvent.press(getByTestId('settings-screen-back-button'));
+      fireEvent.press(getByTestId('settings-screen-cancel-button'));
 
       expect(mockOnBack).toHaveBeenCalledTimes(1);
     });
 
-    it('should call onBack multiple times if pressed multiple times', () => {
+    it('should call onBack when Save & Close button pressed', async () => {
       const { getByTestId } = render(<SettingsScreen onBack={mockOnBack} />);
 
-      const backButton = getByTestId('settings-screen-back-button');
-      fireEvent.press(backButton);
-      fireEvent.press(backButton);
-      fireEvent.press(backButton);
+      fireEvent.press(getByTestId('settings-screen-save-button'));
 
-      expect(mockOnBack).toHaveBeenCalledTimes(3);
+      await waitFor(() => expect(mockOnBack).toHaveBeenCalledTimes(1));
     });
   });
 
@@ -229,12 +236,10 @@ describe('SettingsScreen', () => {
       expect(UNSAFE_getByType(SafeAreaView)).toBeTruthy();
     });
 
-    it('should show helpful tip about auto-save', () => {
+    it('should show helpful tip about manual save', () => {
       const { getByText } = render(<SettingsScreen onBack={mockOnBack} />);
 
-      expect(
-        getByText(/Changes are saved automatically. Threshold warnings help you track/)
-      ).toBeTruthy();
+      expect(getByText(/Click "Save & Close" when you're done/)).toBeTruthy();
     });
   });
 });

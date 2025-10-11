@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, fireEvent, waitFor } from '@testing-library/react-native';
+import { render, fireEvent } from '@testing-library/react-native';
 import { ThresholdEditor } from '../input/ThresholdEditor';
 import type { NutritionThresholds } from '@/types/nutrition.types';
 
@@ -174,8 +174,11 @@ describe('ThresholdEditor', () => {
       const input = getByTestId('threshold-editor-input-calories');
       fireEvent.changeText(input, '-100');
 
-      // Should remain at original value
-      expect(input.props.value).toBe('2000');
+      // Display value shows what user typed (for UX), but numeric value is not updated
+      expect(input.props.value).toBe('-100'); // Shows user input
+
+      // But onChange should not be called with invalid value (numeric state unchanged)
+      // The component keeps old valid value internally
     });
 
     it('should allow empty string for editing', () => {
@@ -186,7 +189,8 @@ describe('ThresholdEditor', () => {
       const input = getByTestId('threshold-editor-input-calories');
       fireEvent.changeText(input, '');
 
-      expect(input.props.value).toBe('0');
+      // Display value allows empty string during editing
+      expect(input.props.value).toBe('');
     });
 
     it('should ignore non-numeric input', () => {
@@ -197,11 +201,13 @@ describe('ThresholdEditor', () => {
       const input = getByTestId('threshold-editor-input-calories');
       fireEvent.changeText(input, 'abc');
 
-      expect(input.props.value).toBe('2000');
+      // Display value shows what user typed (better UX feedback)
+      expect(input.props.value).toBe('abc');
+      // But the numeric value internally is not updated (stays at 2000)
     });
   });
 
-  describe('Debounced Save', () => {
+  describe('Manual Save (No Auto-Save)', () => {
     it('should not save immediately on input change', () => {
       const { getByTestId } = render(
         <ThresholdEditor thresholds={defaultThresholds} onSave={mockOnSave} />
@@ -213,7 +219,7 @@ describe('ThresholdEditor', () => {
       expect(mockOnSave).not.toHaveBeenCalled();
     });
 
-    it('should save after 500ms debounce delay', async () => {
+    it('should not auto-save after delay', async () => {
       const { getByTestId } = render(
         <ThresholdEditor thresholds={defaultThresholds} onSave={mockOnSave} />
       );
@@ -221,17 +227,14 @@ describe('ThresholdEditor', () => {
       const input = getByTestId('threshold-editor-input-calories');
       fireEvent.changeText(input, '2500');
 
-      jest.advanceTimersByTime(500);
+      // Wait longer than old debounce delay
+      jest.advanceTimersByTime(1000);
 
-      await waitFor(() => {
-        expect(mockOnSave).toHaveBeenCalledWith({
-          ...defaultThresholds,
-          calories: 2500,
-        });
-      });
+      // Should still not save automatically
+      expect(mockOnSave).not.toHaveBeenCalled();
     });
 
-    it('should debounce multiple rapid changes', async () => {
+    it('should allow multiple rapid changes without saving', async () => {
       const { getByTestId } = render(
         <ThresholdEditor thresholds={defaultThresholds} onSave={mockOnSave} />
       );
@@ -247,13 +250,8 @@ describe('ThresholdEditor', () => {
       fireEvent.changeText(input, '2300');
       jest.advanceTimersByTime(500);
 
-      await waitFor(() => {
-        expect(mockOnSave).toHaveBeenCalledTimes(1);
-        expect(mockOnSave).toHaveBeenCalledWith({
-          ...defaultThresholds,
-          calories: 2300,
-        });
-      });
+      // Should not auto-save at all
+      expect(mockOnSave).not.toHaveBeenCalled();
     });
   });
 

@@ -1,8 +1,9 @@
 import React from 'react';
-import { View, Text, StyleSheet, SafeAreaView, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, ScrollView, Alert } from 'react-native';
 import { ThresholdEditor } from '@/components/input/ThresholdEditor';
 import { PrimaryButton } from '@/components/base/PrimaryButton';
 import { useThresholds } from '@/hooks/useThresholds';
+import { useSettingsForm } from '@/hooks/useSettingsForm';
 import type { NutritionThresholds } from '@/types/nutrition.types';
 import { colors } from '@/theme/colors';
 import { spacing } from '@/theme/spacing';
@@ -18,33 +19,77 @@ export interface SettingsScreenProps {
  *
  * Features:
  * - Edit all 8 nutrition thresholds
- * - Auto-save with debouncing (handled by ThresholdEditor)
+ * - Save & Close button (always visible)
  * - Reset to FDA defaults
- * - Back navigation
+ * - Unsaved changes warning
  *
  * User Flow:
  * 1. User arrives from HomeScreen or ReportScreen
- * 2. Edit threshold values with immediate feedback
- * 3. Changes auto-save after 500ms
- * 4. Tap back to return to previous screen
+ * 2. Edit threshold values with immediate visual feedback
+ * 3. Click "Save & Close" to persist and exit
+ * 4. Tap "Cancel" to exit without saving (with warning if changed)
  */
 export const SettingsScreen: React.FC<SettingsScreenProps> = ({
   onBack,
   testID = 'settings-screen',
 }) => {
   // Load and manage user's thresholds
-  const { thresholds, updateThreshold, resetToDefaults, isSaving } = useThresholds();
+  const { thresholds, saveAll, resetToDefaults, isSaving } = useThresholds();
 
-  // Handle threshold updates from editor
-  const handleSave = (updatedThresholds: NutritionThresholds) => {
-    // Update each threshold individually to trigger auto-save
-    Object.entries(updatedThresholds).forEach(([key, value]) => {
-      updateThreshold(key as keyof NutritionThresholds, value);
-    });
+  // Use custom hook for form state management
+  const {
+    editedThresholds,
+    hasChanges,
+    handleChange,
+    handleSave,
+    handleReset: resetForm,
+  } = useSettingsForm(thresholds, saveAll);
+
+  const handleSaveAndClose = async () => {
+    try {
+      await handleSave();
+      onBack();
+    } catch (error) {
+      console.error('[Settings] Save failed:', error);
+      Alert.alert('Save Failed', 'Unable to save your settings. Please try again.');
+    }
+  };
+
+  const handleCancel = () => {
+    if (hasChanges) {
+      Alert.alert(
+        'Unsaved Changes',
+        'You have unsaved changes. Are you sure you want to exit without saving?',
+        [
+          {
+            text: 'Keep Editing',
+            style: 'cancel',
+          },
+          {
+            text: 'Discard Changes',
+            style: 'destructive',
+            onPress: onBack,
+          },
+        ]
+      );
+    } else {
+      onBack();
+    }
+  };
+
+  const handleReset = async () => {
+    await resetToDefaults();
+    await resetForm();
+  };
+
+  // Placeholder for onSave (not used when hideSaveButton=true)
+  const handleSaveFromEditor = async (updatedThresholds: NutritionThresholds) => {
+    // This won't be called since we hide the save button
+    await saveAll(updatedThresholds);
   };
 
   // Determine save status for visual feedback
-  const saveStatus = isSaving ? 'saving' : 'saved';
+  const saveStatus = isSaving ? 'saving' : 'idle';
 
   return (
     <SafeAreaView style={styles.container} testID={testID}>
@@ -67,26 +112,40 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({
         {/* Threshold Editor */}
         <View style={styles.editorContainer}>
           <ThresholdEditor
-            thresholds={thresholds}
-            onSave={handleSave}
-            onReset={resetToDefaults}
+            thresholds={editedThresholds}
+            onChange={handleChange}
+            onSave={handleSaveFromEditor}
+            onReset={handleReset}
             saveStatus={saveStatus}
+            hideSaveButton={true}
             testID={`${testID}-threshold-editor`}
           />
         </View>
 
         {/* Info Text */}
         <Text style={styles.infoText} testID={`${testID}-info`}>
-          💡 Changes are saved automatically. Threshold warnings help you track your daily intake
-          goals.
+          Edit your daily nutrition thresholds below. Click "Save & Close" when you're done.
         </Text>
       </ScrollView>
 
-      {/* Fixed Footer with Back Button */}
+      {/* Fixed Footer with Action Buttons */}
       <View style={styles.footer}>
-        <PrimaryButton onPress={onBack} testID={`${testID}-back-button`}>
-          ← Done
-        </PrimaryButton>
+        <View style={styles.buttonRow}>
+          <View style={styles.buttonHalf}>
+            <PrimaryButton onPress={handleCancel} testID={`${testID}-cancel-button`}>
+              Cancel
+            </PrimaryButton>
+          </View>
+          <View style={styles.buttonHalf}>
+            <PrimaryButton
+              onPress={handleSaveAndClose}
+              disabled={isSaving}
+              testID={`${testID}-save-button`}
+            >
+              {isSaving ? 'Saving...' : 'Save & Close'}
+            </PrimaryButton>
+          </View>
+        </View>
       </View>
     </SafeAreaView>
   );
@@ -136,5 +195,12 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: colors.border,
     backgroundColor: colors.background,
+  },
+  buttonRow: {
+    flexDirection: 'row',
+    gap: spacing.md,
+  },
+  buttonHalf: {
+    flex: 1,
   },
 });

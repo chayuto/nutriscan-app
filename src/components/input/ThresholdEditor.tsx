@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { View, Text, TextInput, StyleSheet, ScrollView, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { GlassCard } from '@/components/base/GlassCard';
@@ -12,10 +12,26 @@ import type { NutritionThresholds } from '@/types/nutrition.types';
 export interface ThresholdEditorProps {
   thresholds: NutritionThresholds;
   onSave: (thresholds: NutritionThresholds) => void;
+  onChange?: (thresholds: NutritionThresholds) => void; // Called on every change
   onReset?: () => void;
   saveStatus?: 'idle' | 'saving' | 'saved' | 'error';
+  hideSaveButton?: boolean;
   testID?: string;
 }
+
+// Helper to convert numeric thresholds to string display values
+const initDisplayValues = (
+  values: NutritionThresholds
+): Record<keyof NutritionThresholds, string> => {
+  const display: Record<keyof NutritionThresholds, string> = {} as Record<
+    keyof NutritionThresholds,
+    string
+  >;
+  (Object.keys(values) as Array<keyof NutritionThresholds>).forEach((key) => {
+    display[key] = String(values[key]);
+  });
+  return display;
+};
 
 interface ThresholdField {
   key: keyof NutritionThresholds;
@@ -57,47 +73,91 @@ const THRESHOLD_FIELDS: ThresholdField[] = [
 export const ThresholdEditor: React.FC<ThresholdEditorProps> = ({
   thresholds,
   onSave,
+  onChange,
   onReset,
   saveStatus = 'idle',
+  hideSaveButton = false,
   testID = 'threshold-editor',
 }) => {
   const [localValues, setLocalValues] = useState<NutritionThresholds>(thresholds);
   const [focusedField, setFocusedField] = useState<keyof NutritionThresholds | null>(null);
+  const [displayValues, setDisplayValues] = useState<Record<keyof NutritionThresholds, string>>(
+    initDisplayValues(thresholds)
+  );
+  const onChangeRef = useRef(onChange);
+  const hasLocalChanges = useRef(false);
+  const isFirstRender = useRef(true); // Track first render to skip initial onChange
 
-  // Update local values when prop changes
+  // Update ref when onChange changes
   useEffect(() => {
-    setLocalValues(thresholds);
-  }, [thresholds]);
+    onChangeRef.current = onChange;
+  }, [onChange]);
 
-  // Debounced save effect
+  // Only update local values when thresholds prop changes from external source
+  // (e.g., initial load or reset from parent)
+  // BUT: Don't override if user has made local changes OR is currently editing
   useEffect(() => {
-    const timer = setTimeout(() => {
-      // Only save if values have changed
-      const hasChanged = Object.keys(localValues).some(
-        (key) =>
-          localValues[key as keyof NutritionThresholds] !==
-          thresholds[key as keyof NutritionThresholds]
+    console.warn('🔍 [ThresholdEditor] Prop update effect triggered');
+    console.warn('🔍 [ThresholdEditor] hasLocalChanges:', hasLocalChanges.current);
+    console.warn('🔍 [ThresholdEditor] focusedField:', focusedField);
+    console.warn('🔍 [ThresholdEditor] thresholds from prop:', thresholds);
+
+    if (!hasLocalChanges.current && !focusedField) {
+      console.warn('🔄 [ThresholdEditor] Updating from prop:', thresholds);
+      setLocalValues(thresholds);
+      // Also update display values when syncing from prop (but not during active editing)
+      setDisplayValues(initDisplayValues(thresholds));
+    } else {
+      console.warn(
+        '⏭️  [ThresholdEditor] Skipping prop update, has local changes or focused field:',
+        focusedField
       );
+    }
+  }, [thresholds, focusedField]); // Notify parent of changes (skip first render to avoid marking as changed on mount)
+  useEffect(() => {
+    if (isFirstRender.current) {
+      console.warn('🎬 [ThresholdEditor] First render - skipping onChange');
+      isFirstRender.current = false;
+      return;
+    }
 
-      if (hasChanged) {
-        onSave(localValues);
-      }
-    }, 500);
-
-    return () => clearTimeout(timer);
-  }, [localValues, thresholds, onSave]);
+    console.warn('🔔 [ThresholdEditor] Local values changed:', localValues);
+    if (onChangeRef.current) {
+      console.warn('📤 [ThresholdEditor] Calling onChange with:', localValues);
+      onChangeRef.current(localValues);
+    }
+  }, [localValues]);
 
   const handleValueChange = useCallback((key: keyof NutritionThresholds, value: string) => {
-    // Allow empty string for editing
+    console.warn('⌨️  [ThresholdEditor] User typing:', key, '=', value);
+    hasLocalChanges.current = true; // Mark that user has made changes
+
+    // Update display value immediately (allow empty string, partial numbers like "1.")
+    setDisplayValues((prev) => {
+      console.warn('📝 [ThresholdEditor] Setting display value:', key, '=', value);
+      return { ...prev, [key]: value };
+    });
+
+    // Parse and update actual value
     if (value === '') {
+      // User deleted everything - set to 0 temporarily (will be fixed on blur)
+      console.warn('🗑️  [ThresholdEditor] Empty value, setting to 0');
       setLocalValues((prev) => ({ ...prev, [key]: 0 }));
       return;
     }
 
-    // Parse and validate
+    if (value === '.') {
+      // Just decimal point - keep old value for now
+      console.warn('⏸️  [ThresholdEditor] Just decimal point, keeping old value');
+      return;
+    }
+
     const numValue = parseFloat(value);
     if (!isNaN(numValue) && numValue >= 0) {
+      console.warn('✅ [ThresholdEditor] Valid number, updating localValues:', key, '=', numValue);
       setLocalValues((prev) => ({ ...prev, [key]: numValue }));
+    } else {
+      console.warn('❌ [ThresholdEditor] Invalid number:', value);
     }
   }, []);
 
@@ -113,12 +173,17 @@ export const ThresholdEditor: React.FC<ThresholdEditorProps> = ({
       sodium: 2300,
     };
     setLocalValues(defaults);
+    setDisplayValues(initDisplayValues(defaults)); // Update display values too
     if (onReset) {
       onReset();
     } else {
       onSave(defaults);
     }
   }, [onReset, onSave]);
+
+  const handleManualSave = useCallback(() => {
+    onSave(localValues);
+  }, [localValues, onSave]);
 
   const getSaveStatusText = () => {
     switch (saveStatus) {
@@ -178,10 +243,25 @@ export const ThresholdEditor: React.FC<ThresholdEditorProps> = ({
 
             <View style={styles.inputRow}>
               <TextInput
-                value={String(localValues[field.key])}
+                value={
+                  displayValues[field.key] !== undefined
+                    ? displayValues[field.key]
+                    : String(localValues[field.key])
+                }
                 onChangeText={(value) => handleValueChange(field.key, value)}
                 onFocus={() => setFocusedField(field.key)}
-                onBlur={() => setFocusedField(null)}
+                onBlur={() => {
+                  setFocusedField(null);
+                  // On blur, if empty, reset to actual value or show 0
+                  const currentDisplay = displayValues[field.key];
+                  if (currentDisplay === '' || currentDisplay === '.') {
+                    // If user left it empty, restore the numeric value
+                    setDisplayValues((prev) => ({
+                      ...prev,
+                      [field.key]: String(localValues[field.key]),
+                    }));
+                  }
+                }}
                 keyboardType="numeric"
                 returnKeyType="done"
                 style={[styles.input, focusedField === field.key && styles.inputFocused]}
@@ -214,13 +294,15 @@ export const ThresholdEditor: React.FC<ThresholdEditorProps> = ({
         </Pressable>
       </ScrollView>
 
-      <PrimaryButton
-        onPress={() => onSave(localValues)}
-        testID={`${testID}-save-button`}
-        accessibilityLabel="Save threshold changes"
-      >
-        Save Changes
-      </PrimaryButton>
+      {!hideSaveButton && (
+        <PrimaryButton
+          onPress={handleManualSave}
+          testID={`${testID}-save-button`}
+          accessibilityLabel="Save threshold changes"
+        >
+          Save Changes
+        </PrimaryButton>
+      )}
     </GlassCard>
   );
 };
