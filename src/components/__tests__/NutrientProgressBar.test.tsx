@@ -29,7 +29,7 @@ describe('NutrientProgressBar', () => {
       const { getByTestId, getByText } = render(<NutrientProgressBar {...defaultProps} />);
 
       expect(getByText('Calories')).toBeTruthy();
-      expect(getByText('250.0 / 2000 kcal')).toBeTruthy();
+      expect(getByText('250.0 / 2000 kcal per 100g/100ml')).toBeTruthy();
       expect(getByText('13%')).toBeTruthy();
       expect(getByTestId('nutrient-progress-bar')).toBeTruthy();
     });
@@ -41,29 +41,13 @@ describe('NutrientProgressBar', () => {
       expect(getByTestId('custom-bar-label')).toBeTruthy();
       expect(getByTestId('custom-bar-value')).toBeTruthy();
     });
-
-    it('should render with serving size context', () => {
-      const { getByText } = render(
-        <NutrientProgressBar {...defaultProps} servingSize="100g" />
-      );
-
-      expect(getByText('250.0 / 2000 kcal per 100g')).toBeTruthy();
-    });
-
-    it('should render with serving size in ml', () => {
-      const { getByText } = render(
-        <NutrientProgressBar {...defaultProps} servingSize="100ml" />
-      );
-
-      expect(getByText('250.0 / 2000 kcal per 100ml')).toBeTruthy();
-    });
   });
 
   describe('Null Value Handling', () => {
     it('should display N/A when value is null', () => {
       const { getByText } = render(<NutrientProgressBar {...defaultProps} value={null} />);
 
-      expect(getByText('N/A / 2000 kcal')).toBeTruthy();
+      expect(getByText('N/A / 2000 kcal per 100g/100ml')).toBeTruthy();
       expect(getByText('0%')).toBeTruthy();
     });
 
@@ -137,32 +121,27 @@ describe('NutrientProgressBar', () => {
     it('should format value to 1 decimal place', () => {
       const { getByText } = render(<NutrientProgressBar {...defaultProps} value={250.567} threshold={2000} />);
 
-      expect(getByText('250.6 / 2000 kcal')).toBeTruthy();
+      expect(getByText('250.6 / 2000 kcal per 100g/100ml')).toBeTruthy();
     });
 
     it('should handle integer values', () => {
       const { getByText } = render(<NutrientProgressBar {...defaultProps} value={250} threshold={2000} />);
 
-      expect(getByText('250.0 / 2000 kcal')).toBeTruthy();
+      expect(getByText('250.0 / 2000 kcal per 100g/100ml')).toBeTruthy();
     });
 
     it('should handle different units', () => {
       const { getByText } = render(<NutrientProgressBar {...defaultProps} value={50} threshold={70} unit="g" />);
 
-      expect(getByText('50.0 / 70 g')).toBeTruthy();
+      expect(getByText('50.0 / 70 g per 100g/100ml')).toBeTruthy();
     });
 
     it('should handle milligrams', () => {
       const { getByText } = render(
-        <NutrientProgressBar
-          label="Sodium"
-          value={1500}
-          threshold={2300}
-          unit="mg"
-        />
+        <NutrientProgressBar label="Sodium" value={1500} threshold={2300} unit="mg" />
       );
 
-      expect(getByText('1500.0 / 2300 mg')).toBeTruthy();
+      expect(getByText('1500.0 / 2300 mg per 100g/100ml')).toBeTruthy();
     });
   });
 

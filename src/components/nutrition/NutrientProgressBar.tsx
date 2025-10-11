@@ -8,22 +8,23 @@ import { borderRadius } from '@/theme/spacing';
 
 export interface NutrientProgressBarProps {
   label: string;
-  value: number | null;
-  threshold: number;
+  value: number | null; // Value per 100g or 100ml (Australian standard)
+  threshold: number; // Daily limit
   unit: string;
-  servingSize?: string; // e.g., "100g", "100ml", "1 serving (30g)"
   testID?: string;
 }
 
 /**
  * NutrientProgressBar - Animated progress bar with color-coded zones
+ * 
+ * Displays nutrient values per 100g/100ml (Australian nutrition label standard)
+ * compared against daily thresholds.
  *
  * Features:
  * - Animated width transitions (600ms)
- * - Color zones: safe (green) < 80%, caution (yellow) 80-100%, danger (red) >100%
+ * - Color zones: safe (green) < 50%, caution (yellow) 50-80%, danger (red) >= 80%
  * - Gradient fills for safe zone
- * - Warning badge when exceeded
- * - Serving size context display
+ * - Warning badge when exceeded (> 100%)
  * - Full accessibility with progress values
  */
 export const NutrientProgressBar: React.FC<NutrientProgressBarProps> = ({
@@ -31,7 +32,6 @@ export const NutrientProgressBar: React.FC<NutrientProgressBarProps> = ({
   value,
   threshold,
   unit,
-  servingSize,
   testID = 'nutrient-progress-bar',
 }) => {
   const animatedWidth = useRef(new Animated.Value(0)).current;
@@ -69,9 +69,8 @@ export const NutrientProgressBar: React.FC<NutrientProgressBarProps> = ({
     }).start();
   }, [percentage, animatedWidth]);
 
-  // Format value display with serving size context
+  // Format value display
   const valueText = value !== null ? value.toFixed(1) : 'N/A';
-  const servingSizeText = servingSize ? ` per ${servingSize}` : '';
   const percentageText = value !== null ? `${actualPercentage.toFixed(0)}%` : '0%';
 
   return (
@@ -88,10 +87,9 @@ export const NutrientProgressBar: React.FC<NutrientProgressBarProps> = ({
         )}
       </View>
 
-      {/* Value row with serving size context */}
+      {/* Value row - per 100g/100ml */}
       <Text style={styles.valueText} testID={`${testID}-value`}>
-        {valueText} / {threshold} {unit}
-        {servingSizeText}
+        {valueText} / {threshold} {unit} per 100g/100ml
       </Text>
 
       {/* Progress bar */}

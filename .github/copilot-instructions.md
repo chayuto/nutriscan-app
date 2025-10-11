@@ -9,6 +9,8 @@
 **Theme**: Neon Clarity (dark mode with glassmorphism)  
 **Flow**: Camera → AI Analysis → Visual Report with Threshold Alerts
 
+**Important**: App focuses on **per 100g/100ml values** from Australian nutrition labels (standard column), NOT serving sizes.
+
 ## 🎨 Design System Quick Reference
 
 ### Colors (NEVER hardcode - import from `@/theme`)
