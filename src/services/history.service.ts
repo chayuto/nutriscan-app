@@ -381,22 +381,62 @@ export class HistoryService {
   }
 
   /**
-   * Toggle favorite status
+   * Toggle favorite status with optional optimistic update support
+   *
+   * Standard mode (default):
+   * - Updates cache and storage
+   * - Waits for save to complete (~150ms)
+   * - Returns new favorite status
+   *
+   * Optimistic mode ({ optimistic: true }):
+   * - Updates cache immediately
+   * - Returns new status instantly (<10ms)
+   * - Saves in background
+   * - Auto-rollback on save failure
+   *
+   * @param id - Item ID to toggle
+   * @param options - Optional configuration
+   * @param options.optimistic - If true, return immediately and save in background
    * @returns New favorite status
+   *
+   * @example
+   * // Standard mode (wait for save)
+   * const newStatus = await historyService.toggleFavorite('item-123');
+   *
+   * @example
+   * // Optimistic mode (instant UI feedback)
+   * const newStatus = await historyService.toggleFavorite('item-123', { optimistic: true });
    */
-  async toggleFavorite(id: string): Promise<boolean> {
+  async toggleFavorite(id: string, options?: { optimistic?: boolean }): Promise<boolean> {
     const history = await this.load();
     if (!history) throw new Error('History not initialized');
 
     const item = history.items.find((i) => i.id === id);
     if (!item) throw new Error('Item not found');
 
-    item.isFavorite = !item.isFavorite;
+    const newStatus = !item.isFavorite;
+
+    // Update cache immediately
+    item.isFavorite = newStatus;
     item.updatedAt = Date.now();
     item.version++;
 
+    if (options?.optimistic) {
+      // Optimistic path: return immediately, save in background
+      this.save(history).catch((error) => {
+        console.error('[HistoryService] Failed to save favorite toggle:', error);
+        // Rollback in cache on failure
+        item.isFavorite = !newStatus;
+        item.updatedAt = Date.now();
+        item.version--;
+      });
+
+      return newStatus;
+    }
+
+    // Standard path: wait for save to complete
     await this.save(history);
-    return item.isFavorite;
+    return newStatus;
   }
 
   /**

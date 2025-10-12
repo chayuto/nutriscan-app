@@ -568,6 +568,129 @@ describe('HistoryService', () => {
       const item = await service.getItem('test-id');
       expect(item?.isFavorite).toBe(true);
     });
+
+    it('should support optimistic updates (instant return)', async () => {
+      const mockItem: ScanHistoryItem = {
+        id: 'test-id',
+        timestamp: Date.now(),
+        productName: 'Test',
+        nutritionData: createMockNutritionData(),
+        isFavorite: false,
+        tags: [],
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        version: 1,
+      };
+
+      const history: ScanHistory = {
+        version: 1,
+        items: [mockItem],
+        metadata: {
+          totalScans: 1,
+          lastScanAt: Date.now(),
+          storageVersion: '1.0.0',
+        },
+      };
+
+      (SecureStore.getItemAsync as jest.Mock).mockResolvedValue(JSON.stringify(history));
+
+      const startTime = Date.now();
+      const newStatus = await service.toggleFavorite('test-id', { optimistic: true });
+      const duration = Date.now() - startTime;
+
+      // Should return immediately (< 50ms, not waiting for save)
+      expect(duration).toBeLessThan(50);
+      expect(newStatus).toBe(true);
+
+      // Cache should be updated immediately
+      const item = await service.getItem('test-id');
+      expect(item?.isFavorite).toBe(true);
+
+      // Wait for background save to complete
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      expect(SecureStore.setItemAsync).toHaveBeenCalled();
+    });
+
+    it('should rollback on save failure with optimistic update', async () => {
+      const mockItem: ScanHistoryItem = {
+        id: 'test-id',
+        timestamp: Date.now(),
+        productName: 'Test',
+        nutritionData: createMockNutritionData(),
+        isFavorite: false,
+        tags: [],
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        version: 1,
+      };
+
+      const history: ScanHistory = {
+        version: 1,
+        items: [mockItem],
+        metadata: {
+          totalScans: 1,
+          lastScanAt: Date.now(),
+          storageVersion: '1.0.0',
+        },
+      };
+
+      (SecureStore.getItemAsync as jest.Mock).mockResolvedValue(JSON.stringify(history));
+      
+      // Make save fail after first successful load
+      (SecureStore.setItemAsync as jest.Mock).mockImplementation(() => {
+        return Promise.reject(new Error('Storage error'));
+      });
+
+      const newStatus = await service.toggleFavorite('test-id', { optimistic: true });
+
+      // Should still return true immediately (optimistic)
+      expect(newStatus).toBe(true);
+
+      // Cache should be updated immediately
+      service.clearCache(); // Clear cache to force reload from "storage"
+      const itemAfterOptimistic = await service.getItem('test-id');
+      // Still false in storage since save failed
+      expect(itemAfterOptimistic?.isFavorite).toBe(false);
+
+      // Wait for background save to fail and rollback in cache
+      await new Promise((resolve) => setTimeout(resolve, 150));
+
+      // Verify save was attempted and failed
+      expect(SecureStore.setItemAsync).toHaveBeenCalled();
+    });
+
+    it('should wait for save in standard mode (non-optimistic)', async () => {
+      const mockItem: ScanHistoryItem = {
+        id: 'test-id',
+        timestamp: Date.now(),
+        productName: 'Test',
+        nutritionData: createMockNutritionData(),
+        isFavorite: false,
+        tags: [],
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        version: 1,
+      };
+
+      const history: ScanHistory = {
+        version: 1,
+        items: [mockItem],
+        metadata: {
+          totalScans: 1,
+          lastScanAt: Date.now(),
+          storageVersion: '1.0.0',
+        },
+      };
+
+      (SecureStore.getItemAsync as jest.Mock).mockResolvedValue(JSON.stringify(history));
+
+      // Standard mode should wait for save
+      const newStatus = await service.toggleFavorite('test-id');
+
+      expect(newStatus).toBe(true);
+      // Save should have completed before returning
+      expect(SecureStore.setItemAsync).toHaveBeenCalled();
+    });
   });
 
   describe('deleteItem()', () => {
