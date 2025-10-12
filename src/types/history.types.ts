@@ -1,10 +1,10 @@
 /**
  * History Types
- * 
+ *
  * Type definitions for scan history and favorites feature.
  * These types support the JSON-based storage approach for managing
  * historical nutrition scans with metadata and user preferences.
- * 
+ *
  * @see docs/SPRINT-4-HISTORY-FAVORITES.md for complete specification
  */
 
@@ -12,7 +12,7 @@ import type { NutritionData } from './nutrition.types';
 
 /**
  * Single scan entry in history
- * 
+ *
  * Represents a complete nutrition scan with all associated metadata,
  * user customizations, and reference to the original scanned image.
  */
@@ -32,9 +32,9 @@ export interface ScanHistoryItem {
   /** Nutrition data extracted by OpenAI Vision API */
   nutritionData: NutritionData;
 
-  /** 
+  /**
    * Local file URI from camera/gallery (e.g., "file:///...")
-   * NOTE: OpenAI doesn't return images - we get this from 
+   * NOTE: OpenAI doesn't return images - we get this from
    * capturePhoto() or pickFromGallery() in useCamera hook
    * ⚠️ Original images may be deleted by OS if storage is low
    */
@@ -62,7 +62,7 @@ export interface ScanHistoryItem {
 
 /**
  * Complete history storage structure
- * 
+ *
  * Root object stored in expo-secure-store containing all scans
  * and metadata about the history collection.
  */
@@ -88,7 +88,7 @@ export interface ScanHistory {
 
 /**
  * Filter options for querying history items
- * 
+ *
  * Used by getItems() to filter, sort, and paginate results.
  */
 export interface HistoryFilter {
@@ -101,7 +101,7 @@ export interface HistoryFilter {
   /** Filter by date range */
   dateRange?: {
     start: number; // Unix timestamp
-    end: number;   // Unix timestamp
+    end: number; // Unix timestamp
   };
 
   /** Filter by tags (matches if item has ANY of these tags) */
@@ -122,7 +122,7 @@ export interface HistoryFilter {
 
 /**
  * Statistics about scan history
- * 
+ *
  * Aggregated data for dashboard display and user insights.
  */
 export interface HistoryStats {

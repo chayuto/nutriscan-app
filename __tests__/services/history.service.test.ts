@@ -52,16 +52,16 @@ describe('HistoryService', () => {
   beforeEach(() => {
     // Clear all mocks
     jest.clearAllMocks();
-    
+
     // Reset mock storage
     mockStorage = {};
-    
+
     // Create fresh service instance
     service = new HistoryService();
-    
+
     // Clear any cached data
     service.clearCache();
-    
+
     // Setup mock implementation with actual storage
     (SecureStore.getItemAsync as jest.Mock).mockImplementation((key: string) => {
       return Promise.resolve(mockStorage[key] || null);
@@ -275,7 +275,7 @@ describe('HistoryService', () => {
     it('should enforce 1000 item limit by removing oldest non-favorite', async () => {
       // Clear cache and setup special test case
       service.clearCache();
-      
+
       // Create history with 1000 items
       const items: ScanHistoryItem[] = Array.from({ length: 1000 }, (_, i) => ({
         id: `item-${i}`,
@@ -313,7 +313,7 @@ describe('HistoryService', () => {
     it('should throw error if storage is full of favorites', async () => {
       // Clear cache and setup special test case
       service.clearCache();
-      
+
       // Create history with 1000 favorite items
       const items: ScanHistoryItem[] = Array.from({ length: 1000 }, (_, i) => ({
         id: `item-${i}`,
@@ -635,7 +635,7 @@ describe('HistoryService', () => {
       };
 
       (SecureStore.getItemAsync as jest.Mock).mockResolvedValue(JSON.stringify(history));
-      
+
       // Make save fail after first successful load
       (SecureStore.setItemAsync as jest.Mock).mockImplementation(() => {
         return Promise.reject(new Error('Storage error'));
