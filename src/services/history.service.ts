@@ -51,23 +51,25 @@ export class HistoryService {
    */
   async initialize(): Promise<void> {
     try {
-      const existing = await SecureStore.getItemAsync(STORAGE_KEY);
+      await this.retryOperation(async () => {
+        const existing = await SecureStore.getItemAsync(STORAGE_KEY);
 
-      if (!existing) {
-        const emptyHistory: ScanHistory = {
-          version: 1,
-          items: [],
-          metadata: {
-            totalScans: 0,
-            lastScanAt: 0,
-            storageVersion: STORAGE_VERSION,
-          },
-        };
+        if (!existing) {
+          const emptyHistory: ScanHistory = {
+            version: 1,
+            items: [],
+            metadata: {
+              totalScans: 0,
+              lastScanAt: 0,
+              storageVersion: STORAGE_VERSION,
+            },
+          };
 
-        await SecureStore.setItemAsync(STORAGE_KEY, JSON.stringify(emptyHistory));
-        this.cache.data = emptyHistory;
-        this.cache.timestamp = Date.now();
-      }
+          await SecureStore.setItemAsync(STORAGE_KEY, JSON.stringify(emptyHistory));
+          this.cache.data = emptyHistory;
+          this.cache.timestamp = Date.now();
+        }
+      });
     } catch (error) {
       console.error('[HistoryService] Failed to initialize:', error);
       throw new Error('Failed to initialize history storage');
@@ -89,20 +91,22 @@ export class HistoryService {
         return this.cache.data;
       }
 
-      // Load from storage
-      const data = await SecureStore.getItemAsync(STORAGE_KEY);
+      // Load from storage with retry
+      return await this.retryOperation(async () => {
+        const data = await SecureStore.getItemAsync(STORAGE_KEY);
 
-      if (!data) {
-        return null;
-      }
+        if (!data) {
+          return null;
+        }
 
-      const history: ScanHistory = JSON.parse(data);
+        const history: ScanHistory = JSON.parse(data);
 
-      // Update cache
-      this.cache.data = history;
-      this.cache.timestamp = Date.now();
+        // Update cache
+        this.cache.data = history;
+        this.cache.timestamp = Date.now();
 
-      return history;
+        return history;
+      });
     } catch (error) {
       console.error('[HistoryService] Failed to load history:', error);
       throw new Error('Failed to load history');
@@ -114,9 +118,11 @@ export class HistoryService {
    */
   async save(history: ScanHistory): Promise<void> {
     try {
-      await SecureStore.setItemAsync(STORAGE_KEY, JSON.stringify(history));
+      await this.retryOperation(async () => {
+        await SecureStore.setItemAsync(STORAGE_KEY, JSON.stringify(history));
+      });
 
-      // Update cache
+      // Update cache after successful save
       this.cache.data = history;
       this.cache.timestamp = Date.now();
     } catch (error) {
@@ -131,6 +137,40 @@ export class HistoryService {
    */
   clearCache(): void {
     this.cache = { data: null, timestamp: null };
+  }
+
+  /**
+   * Retry an async operation with exponential backoff
+   * @internal
+   */
+  private async retryOperation<T>(
+    operation: () => Promise<T>,
+    maxRetries: number = 3,
+    initialDelayMs: number = 100
+  ): Promise<T> {
+    let lastError: Error | null = null;
+
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        return await operation();
+      } catch (error) {
+        lastError = error as Error;
+        const errorMessage = (error as Error).message || '';
+
+        // Don't retry on non-retryable errors
+        if (errorMessage.includes('not initialized') || errorMessage.includes('Storage full')) {
+          throw error;
+        }
+
+        // Retry with exponential backoff
+        if (attempt < maxRetries) {
+          const delayMs = initialDelayMs * Math.pow(2, attempt - 1);
+          await new Promise((resolve) => setTimeout(resolve, delayMs));
+        }
+      }
+    }
+
+    throw lastError;
   }
 
   /**
