@@ -99,17 +99,78 @@ export class HistoryService {
           return null;
         }
 
-        const history: ScanHistory = JSON.parse(data);
+        // Parse and validate data
+        try {
+          const history: ScanHistory = JSON.parse(data);
 
-        // Update cache
-        this.cache.data = history;
-        this.cache.timestamp = Date.now();
+          // Validate structure
+          if (!this.isValidHistory(history)) {
+            console.warn(
+              '[HistoryService] Invalid history structure, backing up and reinitializing'
+            );
+            await this.backupCorruptedData(data);
+            // Clear the corrupted data and initialize fresh
+            await SecureStore.setItemAsync(STORAGE_KEY, ''); // Clear corrupted data
+            await this.initialize();
+            // Return the newly initialized empty history from cache
+            return this.cache.data;
+          }
 
-        return history;
+          // Update cache
+          this.cache.data = history;
+          this.cache.timestamp = Date.now();
+
+          return history;
+        } catch (parseError) {
+          console.error('[HistoryService] Failed to parse history, resetting:', parseError);
+          await this.backupCorruptedData(data);
+          // Clear the corrupted data and initialize fresh
+          await SecureStore.setItemAsync(STORAGE_KEY, ''); // Clear corrupted data
+          await this.initialize();
+          // Return the newly initialized empty history from cache
+          return this.cache.data;
+        }
       });
     } catch (error) {
       console.error('[HistoryService] Failed to load history:', error);
       throw new Error('Failed to load history');
+    }
+  }
+
+  /**
+   * Validate history structure
+   * @internal
+   */
+  private isValidHistory(history: unknown): history is ScanHistory {
+    if (typeof history !== 'object' || history === null) {
+      return false;
+    }
+
+    const h = history as Record<string, unknown>;
+
+    return (
+      typeof h.version === 'number' &&
+      Array.isArray(h.items) &&
+      typeof h.metadata === 'object' &&
+      h.metadata !== null &&
+      typeof (h.metadata as Record<string, unknown>).totalScans === 'number' &&
+      typeof (h.metadata as Record<string, unknown>).lastScanAt === 'number' &&
+      typeof (h.metadata as Record<string, unknown>).storageVersion === 'string'
+    );
+  }
+
+  /**
+   * Backup corrupted data for recovery
+   * @internal
+   */
+  private async backupCorruptedData(data: string): Promise<void> {
+    try {
+      const backupKey = `${STORAGE_KEY}_backup_${Date.now()}`;
+      await SecureStore.setItemAsync(backupKey, data);
+      console.warn(`[HistoryService] Corrupted data backed up to: ${backupKey}`);
+    } catch (error) {
+      console.error('[HistoryService] Failed to backup corrupted data:', error);
+      // Don't throw - backup is nice-to-have
     }
   }
 

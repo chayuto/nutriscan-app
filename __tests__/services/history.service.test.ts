@@ -160,10 +160,31 @@ describe('HistoryService', () => {
       expect(SecureStore.getItemAsync).toHaveBeenCalledTimes(1); // Not called again
     });
 
-    it('should handle parse errors', async () => {
-      (SecureStore.getItemAsync as jest.Mock).mockResolvedValue('invalid json');
+    it('should handle parse errors gracefully with error recovery', async () => {
+      // First call returns corrupted data, subsequent calls return empty string (cleared)
+      (SecureStore.getItemAsync as jest.Mock)
+        .mockResolvedValueOnce('invalid json')
+        .mockResolvedValue('');
 
-      await expect(service.load()).rejects.toThrow('Failed to load history');
+      // Should not throw - returns initialized empty history
+      const result = await service.load();
+
+      expect(result).not.toBeNull();
+      expect(result?.items).toEqual([]);
+      expect(result?.metadata.totalScans).toBe(0);
+
+      // Should have backed up corrupted data
+      expect(SecureStore.setItemAsync).toHaveBeenCalledWith(
+        expect.stringMatching(/nutriscan_history_backup_\d+/),
+        'invalid json'
+      );
+
+      // Should have cleared corrupted data and initialized fresh
+      expect(SecureStore.setItemAsync).toHaveBeenCalledWith('nutriscan_history', '');
+      expect(SecureStore.setItemAsync).toHaveBeenCalledWith(
+        'nutriscan_history',
+        expect.stringContaining('"items":[]')
+      );
     });
   });
 
