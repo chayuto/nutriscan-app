@@ -17,3 +17,19 @@ npm install --save-dev @typescript-eslint/parser @typescript-eslint/eslint-plugi
 
 # Note: @testing-library/react-hooks is deprecated for React 19+
 # Use @testing-library/react-native which includes renderHook, act, waitFor
+
+## Building APK
+
+# Install EAS CLI (one time)
+npm install -g eas-cli
+
+# Login to Expo
+eas login
+
+# Build APK locally
+eas build --platform android --profile preview --local
+
+# Install on device
+adb install build-*.apk
+
+eas secret:create --scope project --name EXPO_PUBLIC_OPENAI_API_KEY --value "sk-proj-your-actual-key-here"
