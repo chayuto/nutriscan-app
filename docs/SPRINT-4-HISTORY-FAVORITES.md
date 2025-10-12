@@ -72,8 +72,10 @@ export interface ScanHistoryItem {
   timestamp: number;                    // Unix timestamp (ms)
   productName?: string;                 // User-editable name
   brandName?: string;                   // User-editable brand
-  nutritionData: NutritionData;         // From existing type
-  imageUri?: string;                    // Local file path or base64
+  nutritionData: NutritionData;         // From existing type (OpenAI response)
+  imageUri?: string;                    // Local file URI from camera/gallery (e.g., "file:///...")
+                                        // NOTE: OpenAI doesn't return images - we get this from 
+                                        // capturePhoto() or pickFromGallery() in useCamera hook
   isFavorite: boolean;                  // Quick access flag
   tags: string[];                       // User-defined tags
   notes?: string;                       // User notes
@@ -854,12 +856,37 @@ describe('HistoryService', () => {
 
 #### Tasks:
 - [ ] Update ReportScreen to add "Save to History" button
+- [ ] Pass imageUri from HomeScreen → ReportScreen → History save
 - [ ] Auto-save scans after analysis (optional toggle in settings)
 - [ ] Add history icon to HomeScreen
 - [ ] Update navigation flow
 - [ ] End-to-end testing
 - [ ] Performance optimization
 - [ ] Documentation updates
+
+**Implementation Note:**
+```typescript
+// In HomeScreen, after successful analysis:
+const handleAnalyze = async (imageUri: string) => {
+  const nutritionData = await analyzeImage(imageUri);
+  
+  if (nutritionData) {
+    // Navigate to ReportScreen WITH imageUri
+    onAnalysisComplete(nutritionData, imageUri); // ✅ Pass both
+  }
+};
+
+// In ReportScreen, when saving to history:
+const handleSaveToHistory = async () => {
+  await historyService.addScan({
+    nutritionData,  // From OpenAI analysis
+    imageUri,       // From props (captured by camera/gallery)
+    timestamp: Date.now(),
+    isFavorite: false,
+    tags: [],
+  });
+};
+```
 
 **Deliverable**: Fully integrated history feature
 
@@ -1094,26 +1121,45 @@ console.log(`Load time: ${duration}ms`);
 ### Image Storage Optimization
 
 **Current Approach (Sprint 4):**
-- Store full resolution image URIs in history
-- Images saved to device camera roll or temp directory
+- Store reference to original image URI only
+- Images remain in device camera roll or temp directory
 - Reference stored as file:// path
+- ⚠️ Original images may be deleted by OS if storage is low
 
-**Future Enhancement: Resized Image Storage**
+**Future Enhancement: Resized Image Storage** (User Opt-in)
+
+> **Key Point**: Store **resized/compressed copies only**, NOT full-resolution duplicates. This is essential for storage management.
 
 **User Preference Option:**
 ```typescript
 interface StorageSettings {
-  storeResizedImages: boolean;        // User toggle in settings
+  storeResizedImages: boolean;        // User toggle (default: false)
   imageQuality: 'low' | 'medium' | 'high'; // Compression level
-  maxImageSize: number;               // Max dimensions (e.g., 800px)
+  thumbnailSize: number;              // Default: 72px
+  maxImageSize: number;               // Default: 800px (NOT full resolution!)
 }
 ```
 
+**Storage Strategy:**
+- ✅ **Always**: Reference to original (may not exist later)
+- ✅ **Always**: 72x72px thumbnail (~2-5KB each)
+- ⚙️ **Optional** (user choice): 800px compressed copy (~50-100KB each)
+- ❌ **Never**: Store full-resolution duplicates (would waste storage)
+
+**Storage Math:**
+```
+500 scans with resized storage enabled:
+- Thumbnails: 500 × 3KB = 1.5MB ✅ Always acceptable
+- Compressed: 500 × 75KB = 37.5MB ✅ Optional, user choice
+- Full-res duplicates: 500 × 3MB = 1.5GB ❌ NOT acceptable!
+```
+
 **Benefits:**
-- Reduced storage footprint (full image → thumbnail + compressed)
-- Faster list rendering (smaller images)
-- History can include images even if original deleted
+- Reduced storage footprint (3KB thumbnails vs 3MB originals = 99.9% reduction)
+- Faster list rendering (72px thumbnails load instantly)
+- Images persist even if originals deleted by OS
 - Better performance with 500+ scans
+- User controls storage vs. image quality trade-off
 
 **Implementation Plan (Phase 2):**
 
@@ -1126,37 +1172,62 @@ interface StorageSettings {
 2. **Update ScanHistoryItem Type**
    ```typescript
    interface ScanHistoryItem {
-     imageUri?: string;              // Original image path
-     thumbnailUri?: string;          // 72x72 thumbnail (always)
-     compressedImageUri?: string;    // 800px compressed (if enabled)
+     imageUri?: string;              // Original reference (may not exist)
+     thumbnailUri?: string;          // 72x72px RESIZED copy (2-5KB, always created)
+     compressedImageUri?: string;    // 800px RESIZED copy (50-100KB, optional)
      imageMetadata?: {
-       originalSize: number;         // Bytes
-       compressedSize: number;       // Bytes
-       dimensions: { width: number; height: number };
+       thumbnailSize: number;        // Bytes (e.g., 3KB)
+       compressedSize?: number;      // Bytes (e.g., 75KB)
+       savingsPercent: number;       // vs original (e.g., 99.9%)
      };
    }
+   
+   // ⚠️ NEVER store full-resolution duplicates!
+   // Original images can be 2-5MB each = 1GB for 500 scans
+   // Resized copies are 3-75KB each = 40MB for 500 scans ✅
    ```
 
-3. **Image Processing Pipeline**
+3. **Image Processing Pipeline** (RESIZED copies only!)
    ```typescript
    async function processImageForHistory(
      originalUri: string,
      settings: StorageSettings
    ): Promise<ImageData> {
-     // Always create thumbnail
-     const thumbnail = await createThumbnail(originalUri, 72);
+     // STEP 1: Always create 72px thumbnail (for list view)
+     const thumbnail = await ImageManipulator.manipulateAsync(
+       originalUri,
+       [{ resize: { width: 72, height: 72 } }],
+       { compress: 0.8, format: SaveFormat.JPEG }
+     );
+     // Result: ~2-5KB file ✅
      
-     // Optionally create compressed copy
+     // STEP 2: Optionally create 800px compressed copy (for detail view)
      let compressed = null;
      if (settings.storeResizedImages) {
-       compressed = await compressImage(originalUri, {
-         maxWidth: 800,
-         maxHeight: 800,
-         quality: getQualityValue(settings.imageQuality),
-       });
+       compressed = await ImageManipulator.manipulateAsync(
+         originalUri,
+         [{ resize: { width: 800 } }], // Maintain aspect ratio
+         { 
+           compress: getQualityValue(settings.imageQuality), // 0.6-0.8
+           format: SaveFormat.JPEG 
+         }
+       );
+       // Result: ~50-100KB file ✅
      }
      
-     return { thumbnail, compressed };
+     // STEP 3: Save to permanent directory
+     const thumbnailUri = await saveToAppDirectory(
+       thumbnail.uri, 
+       `thumb_${Date.now()}.jpg`
+     );
+     
+     const compressedUri = compressed 
+       ? await saveToAppDirectory(compressed.uri, `img_${Date.now()}.jpg`)
+       : null;
+     
+     // ⚠️ Do NOT save original full-resolution image!
+     
+     return { thumbnailUri, compressedUri };
    }
    ```
 

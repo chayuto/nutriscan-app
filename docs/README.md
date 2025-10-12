@@ -113,6 +113,14 @@ Welcome to the complete implementation documentation for NutriScan AI.
   - Updated code examples with fixes applied
   - Priority matrix for implementation
 
+- **[SPRINT-4-IMAGE-STORAGE-STRATEGY.md](./SPRINT-4-IMAGE-STORAGE-STRATEGY.md)** - Image Storage Strategy 📸
+  - Core principle: Store RESIZED copies only (3KB thumbnails + 75KB compressed)
+  - NEVER store full-resolution duplicates (would be 1.5GB for 500 scans!)
+  - Storage comparison: 99.9% reduction (3KB vs 3MB per image)
+  - Complete implementation guide with code examples
+  - User settings and cleanup strategies
+  - Real-world storage benchmarks
+
 - **[ARCHITECTURE-DECISIONS.md](./ARCHITECTURE-DECISIONS.md)** - ADR Log
   - ADR-001: JSON storage for history (Sprint 4)
   - ADR-002: Neon Clarity design system
@@ -122,6 +130,15 @@ Welcome to the complete implementation documentation for NutriScan AI.
   - ADR-006: No Redux
   - ADR-007: Test-driven development
   - Path to MVP roadmap
+
+### Technical Clarifications
+
+- **[IMAGE-URI-FLOW-CLARIFICATION.md](./IMAGE-URI-FLOW-CLARIFICATION.md)** - Image URI Source Explained 📸
+  - Clarifies that OpenAI does NOT return images
+  - Documents how imageUri comes from camera/gallery
+  - Explains data flow: Camera → HomeScreen → ReportScreen → History
+  - Covers edge cases (missing images, OS cleanup)
+  - Future enhancement: Resized image storage
 
 ### Original Design Reference
 
