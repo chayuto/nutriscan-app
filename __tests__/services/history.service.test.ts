@@ -742,6 +742,369 @@ describe('HistoryService', () => {
     });
   });
 
+  describe('deleteItems() - Batch Operations', () => {
+    it('should delete multiple items by IDs', async () => {
+      const items: ScanHistoryItem[] = [
+        {
+          id: 'item-1',
+          timestamp: Date.now(),
+          productName: 'Product 1',
+          nutritionData: createMockNutritionData(),
+          isFavorite: false,
+          tags: [],
+          createdAt: Date.now(),
+          updatedAt: Date.now(),
+          version: 1,
+        },
+        {
+          id: 'item-2',
+          timestamp: Date.now(),
+          productName: 'Product 2',
+          nutritionData: createMockNutritionData(),
+          isFavorite: false,
+          tags: [],
+          createdAt: Date.now(),
+          updatedAt: Date.now(),
+          version: 1,
+        },
+        {
+          id: 'item-3',
+          timestamp: Date.now(),
+          productName: 'Product 3',
+          nutritionData: createMockNutritionData(),
+          isFavorite: false,
+          tags: [],
+          createdAt: Date.now(),
+          updatedAt: Date.now(),
+          version: 1,
+        },
+      ];
+
+      const history: ScanHistory = {
+        version: 1,
+        items,
+        metadata: {
+          totalScans: 3,
+          lastScanAt: Date.now(),
+          storageVersion: '1.0.0',
+        },
+      };
+
+      (SecureStore.getItemAsync as jest.Mock).mockResolvedValue(JSON.stringify(history));
+
+      const deletedCount = await service.deleteItems(['item-1', 'item-3']);
+
+      expect(deletedCount).toBe(2);
+      const remainingItems = await service.getItems();
+      expect(remainingItems.length).toBe(1);
+      expect(remainingItems[0].id).toBe('item-2');
+    });
+
+    it('should return 0 if no items match IDs', async () => {
+      const items: ScanHistoryItem[] = [
+        {
+          id: 'item-1',
+          timestamp: Date.now(),
+          productName: 'Product 1',
+          nutritionData: createMockNutritionData(),
+          isFavorite: false,
+          tags: [],
+          createdAt: Date.now(),
+          updatedAt: Date.now(),
+          version: 1,
+        },
+      ];
+
+      const history: ScanHistory = {
+        version: 1,
+        items,
+        metadata: {
+          totalScans: 1,
+          lastScanAt: Date.now(),
+          storageVersion: '1.0.0',
+        },
+      };
+
+      (SecureStore.getItemAsync as jest.Mock).mockResolvedValue(JSON.stringify(history));
+
+      const deletedCount = await service.deleteItems(['non-existent-1', 'non-existent-2']);
+
+      expect(deletedCount).toBe(0);
+      const remainingItems = await service.getItems();
+      expect(remainingItems.length).toBe(1);
+    });
+
+    it('should handle empty IDs array', async () => {
+      const items: ScanHistoryItem[] = [
+        {
+          id: 'item-1',
+          timestamp: Date.now(),
+          productName: 'Product 1',
+          nutritionData: createMockNutritionData(),
+          isFavorite: false,
+          tags: [],
+          createdAt: Date.now(),
+          updatedAt: Date.now(),
+          version: 1,
+        },
+      ];
+
+      const history: ScanHistory = {
+        version: 1,
+        items,
+        metadata: {
+          totalScans: 1,
+          lastScanAt: Date.now(),
+          storageVersion: '1.0.0',
+        },
+      };
+
+      (SecureStore.getItemAsync as jest.Mock).mockResolvedValue(JSON.stringify(history));
+
+      const deletedCount = await service.deleteItems([]);
+
+      expect(deletedCount).toBe(0);
+      expect(SecureStore.setItemAsync).not.toHaveBeenCalled(); // No save if nothing deleted
+    });
+
+    it('should update metadata after batch delete', async () => {
+      const now = Date.now();
+      const items: ScanHistoryItem[] = [
+        {
+          id: 'item-1',
+          timestamp: now - 1000,
+          productName: 'Product 1',
+          nutritionData: createMockNutritionData(),
+          isFavorite: false,
+          tags: [],
+          createdAt: now,
+          updatedAt: now,
+          version: 1,
+        },
+        {
+          id: 'item-2',
+          timestamp: now - 2000,
+          productName: 'Product 2',
+          nutritionData: createMockNutritionData(),
+          isFavorite: false,
+          tags: [],
+          createdAt: now,
+          updatedAt: now,
+          version: 1,
+        },
+      ];
+
+      const history: ScanHistory = {
+        version: 1,
+        items,
+        metadata: {
+          totalScans: 2,
+          lastScanAt: now - 1000,
+          storageVersion: '1.0.0',
+        },
+      };
+
+      (SecureStore.getItemAsync as jest.Mock).mockResolvedValue(JSON.stringify(history));
+
+      await service.deleteItems(['item-1']);
+
+      const updatedHistory = await service.load();
+      expect(updatedHistory?.metadata.totalScans).toBe(1);
+      expect(updatedHistory?.metadata.lastScanAt).toBe(now - 2000);
+    });
+  });
+
+  describe('toggleFavorites() - Batch Operations', () => {
+    it('should toggle multiple items to favorite', async () => {
+      const items: ScanHistoryItem[] = [
+        {
+          id: 'item-1',
+          timestamp: Date.now(),
+          productName: 'Product 1',
+          nutritionData: createMockNutritionData(),
+          isFavorite: false,
+          tags: [],
+          createdAt: Date.now(),
+          updatedAt: Date.now(),
+          version: 1,
+        },
+        {
+          id: 'item-2',
+          timestamp: Date.now(),
+          productName: 'Product 2',
+          nutritionData: createMockNutritionData(),
+          isFavorite: false,
+          tags: [],
+          createdAt: Date.now(),
+          updatedAt: Date.now(),
+          version: 1,
+        },
+        {
+          id: 'item-3',
+          timestamp: Date.now(),
+          productName: 'Product 3',
+          nutritionData: createMockNutritionData(),
+          isFavorite: true,
+          tags: [],
+          createdAt: Date.now(),
+          updatedAt: Date.now(),
+          version: 1,
+        },
+      ];
+
+      const history: ScanHistory = {
+        version: 1,
+        items,
+        metadata: {
+          totalScans: 3,
+          lastScanAt: Date.now(),
+          storageVersion: '1.0.0',
+        },
+      };
+
+      (SecureStore.getItemAsync as jest.Mock).mockResolvedValue(JSON.stringify(history));
+
+      const updatedCount = await service.toggleFavorites(['item-1', 'item-2'], true);
+
+      expect(updatedCount).toBe(2);
+      const allItems = await service.getItems();
+      expect(allItems.filter((item) => item.isFavorite).length).toBe(3);
+    });
+
+    it('should toggle multiple items to non-favorite', async () => {
+      const items: ScanHistoryItem[] = [
+        {
+          id: 'item-1',
+          timestamp: Date.now(),
+          productName: 'Product 1',
+          nutritionData: createMockNutritionData(),
+          isFavorite: true,
+          tags: [],
+          createdAt: Date.now(),
+          updatedAt: Date.now(),
+          version: 1,
+        },
+        {
+          id: 'item-2',
+          timestamp: Date.now(),
+          productName: 'Product 2',
+          nutritionData: createMockNutritionData(),
+          isFavorite: true,
+          tags: [],
+          createdAt: Date.now(),
+          updatedAt: Date.now(),
+          version: 1,
+        },
+      ];
+
+      const history: ScanHistory = {
+        version: 1,
+        items,
+        metadata: {
+          totalScans: 2,
+          lastScanAt: Date.now(),
+          storageVersion: '1.0.0',
+        },
+      };
+
+      (SecureStore.getItemAsync as jest.Mock).mockResolvedValue(JSON.stringify(history));
+
+      const updatedCount = await service.toggleFavorites(['item-1', 'item-2'], false);
+
+      expect(updatedCount).toBe(2);
+      const allItems = await service.getItems();
+      expect(allItems.filter((item) => item.isFavorite).length).toBe(0);
+    });
+
+    it('should return 0 if no items need updating', async () => {
+      const items: ScanHistoryItem[] = [
+        {
+          id: 'item-1',
+          timestamp: Date.now(),
+          productName: 'Product 1',
+          nutritionData: createMockNutritionData(),
+          isFavorite: true,
+          tags: [],
+          createdAt: Date.now(),
+          updatedAt: Date.now(),
+          version: 1,
+        },
+      ];
+
+      const history: ScanHistory = {
+        version: 1,
+        items,
+        metadata: {
+          totalScans: 1,
+          lastScanAt: Date.now(),
+          storageVersion: '1.0.0',
+        },
+      };
+
+      (SecureStore.getItemAsync as jest.Mock).mockResolvedValue(JSON.stringify(history));
+
+      // Item is already favorite, so no update needed
+      const updatedCount = await service.toggleFavorites(['item-1'], true);
+
+      expect(updatedCount).toBe(0);
+      expect(SecureStore.setItemAsync).not.toHaveBeenCalled(); // No save if nothing changed
+    });
+
+    it('should handle empty IDs array', async () => {
+      const history: ScanHistory = {
+        version: 1,
+        items: [],
+        metadata: {
+          totalScans: 0,
+          lastScanAt: 0,
+          storageVersion: '1.0.0',
+        },
+      };
+
+      (SecureStore.getItemAsync as jest.Mock).mockResolvedValue(JSON.stringify(history));
+
+      const updatedCount = await service.toggleFavorites([], true);
+
+      expect(updatedCount).toBe(0);
+      expect(SecureStore.setItemAsync).not.toHaveBeenCalled();
+    });
+
+    it('should update version and timestamp for modified items', async () => {
+      const now = Date.now();
+      const items: ScanHistoryItem[] = [
+        {
+          id: 'item-1',
+          timestamp: now,
+          productName: 'Product 1',
+          nutritionData: createMockNutritionData(),
+          isFavorite: false,
+          tags: [],
+          createdAt: now,
+          updatedAt: now,
+          version: 1,
+        },
+      ];
+
+      const history: ScanHistory = {
+        version: 1,
+        items,
+        metadata: {
+          totalScans: 1,
+          lastScanAt: now,
+          storageVersion: '1.0.0',
+        },
+      };
+
+      (SecureStore.getItemAsync as jest.Mock).mockResolvedValue(JSON.stringify(history));
+
+      await service.toggleFavorites(['item-1'], true);
+
+      const updatedItem = await service.getItem('item-1');
+      expect(updatedItem?.version).toBe(2);
+      expect(updatedItem?.updatedAt).toBeGreaterThanOrEqual(now);
+    });
+  });
+
   describe('clearHistory()', () => {
     it('should clear all items when keepFavorites is false', async () => {
       const items: ScanHistoryItem[] = [

@@ -455,6 +455,99 @@ export class HistoryService {
   }
 
   /**
+   * Delete multiple items by IDs (batch operation)
+   *
+   * More efficient than calling deleteItem() multiple times.
+   * Uses Set for O(1) lookup instead of O(n) per item.
+   *
+   * @param ids - Array of item IDs to delete
+   * @returns Number of items successfully deleted
+   *
+   * @example
+   * // Delete 3 items in one operation
+   * const deletedCount = await historyService.deleteItems(['id1', 'id2', 'id3']);
+   * console.log(`Deleted ${deletedCount} items`);
+   *
+   * @example
+   * // Delete all non-favorite items
+   * const allItems = await historyService.getItems({ isFavorite: false });
+   * const ids = allItems.map(item => item.id);
+   * await historyService.deleteItems(ids);
+   */
+  async deleteItems(ids: string[]): Promise<number> {
+    const history = await this.load();
+    if (!history) throw new Error('History not initialized');
+
+    // Use Set for O(1) lookup instead of O(n) per item
+    const idsSet = new Set(ids);
+    const initialLength = history.items.length;
+
+    // Filter out items to delete
+    history.items = history.items.filter((item) => !idsSet.has(item.id));
+
+    const deletedCount = initialLength - history.items.length;
+    history.metadata.totalScans = history.items.length;
+
+    // Update lastScanAt if items were deleted
+    if (deletedCount > 0) {
+      if (history.items.length > 0) {
+        history.metadata.lastScanAt = Math.max(...history.items.map((item) => item.timestamp));
+      } else {
+        history.metadata.lastScanAt = 0;
+      }
+      await this.save(history);
+    }
+
+    return deletedCount;
+  }
+
+  /**
+   * Toggle favorite status for multiple items (batch operation)
+   *
+   * More efficient than calling toggleFavorite() multiple times.
+   * Only saves once after all updates are applied.
+   *
+   * @param ids - Array of item IDs to update
+   * @param isFavorite - New favorite status to set
+   * @returns Number of items successfully updated
+   *
+   * @example
+   * // Mark multiple items as favorites
+   * const count = await historyService.toggleFavorites(['id1', 'id2', 'id3'], true);
+   *
+   * @example
+   * // Unfavorite all items from a specific brand
+   * const brandItems = await historyService.getItems({ searchQuery: 'Brand X' });
+   * const ids = brandItems.map(item => item.id);
+   * await historyService.toggleFavorites(ids, false);
+   */
+  async toggleFavorites(ids: string[], isFavorite: boolean): Promise<number> {
+    const history = await this.load();
+    if (!history) throw new Error('History not initialized');
+
+    // Use Set for O(1) lookup
+    const idsSet = new Set(ids);
+    let updatedCount = 0;
+
+    // Update all matching items
+    history.items.forEach((item) => {
+      if (idsSet.has(item.id) && item.isFavorite !== isFavorite) {
+        item.isFavorite = isFavorite;
+        item.updatedAt = Date.now();
+        item.version++;
+        updatedCount++;
+      }
+    });
+
+    // Only save if items were actually updated
+    if (updatedCount > 0) {
+      await this.save(history);
+    }
+
+    return updatedCount;
+  }
+
+  /**
    * Clear all history items
    * @param keepFavorites - If true, only remove non-favorites
    */
