@@ -6,6 +6,11 @@
 **Priority**: Medium (Post-MVP enhancement)  
 **Status**: Planning 📋
 
+**Related Documents:**
+- **UI/UX Design**: [SPRINT-4-UI-UX-SPECS.md](./SPRINT-4-UI-UX-SPECS.md) ⭐
+- **Quick Reference**: [SPRINT-4-QUICK-REF.md](./SPRINT-4-QUICK-REF.md)
+- **Architecture Decision**: [ARCHITECTURE-DECISIONS.md](./ARCHITECTURE-DECISIONS.md#adr-001-json-storage-for-history-sprint-4)
+
 ---
 
 ## 🎯 Sprint Objectives
@@ -14,8 +19,9 @@
 1. ✅ Users can save nutrition scan results to history
 2. ✅ Users can view, search, and filter scan history
 3. ✅ Users can mark scans as favorites
-4. ✅ History persists across app restarts
-5. ✅ Graceful handling of storage limits
+4. ✅ Users can add/edit product names for each scan
+5. ✅ History persists across app restarts
+6. ✅ Graceful handling of storage limits
 
 ### Success Metrics
 - Save scan success rate: 99%+
@@ -1022,6 +1028,7 @@ console.log(`Load time: ${duration}ms`);
 - [ ] Users can save scans to history
 - [ ] Users can view list of all scans
 - [ ] Users can mark scans as favorites
+- [ ] Users can add/edit product names for scans
 - [ ] Users can search scans by name
 - [ ] Users can delete individual scans
 - [ ] Favorites persist after app restart
@@ -1082,7 +1089,129 @@ console.log(`Load time: ${duration}ms`);
 
 ---
 
-## 📚 References
+## � Future Considerations (Post-Sprint 4)
+
+### Image Storage Optimization
+
+**Current Approach (Sprint 4):**
+- Store full resolution image URIs in history
+- Images saved to device camera roll or temp directory
+- Reference stored as file:// path
+
+**Future Enhancement: Resized Image Storage**
+
+**User Preference Option:**
+```typescript
+interface StorageSettings {
+  storeResizedImages: boolean;        // User toggle in settings
+  imageQuality: 'low' | 'medium' | 'high'; // Compression level
+  maxImageSize: number;               // Max dimensions (e.g., 800px)
+}
+```
+
+**Benefits:**
+- Reduced storage footprint (full image → thumbnail + compressed)
+- Faster list rendering (smaller images)
+- History can include images even if original deleted
+- Better performance with 500+ scans
+
+**Implementation Plan (Phase 2):**
+
+1. **Add Setting Toggle** (SettingsScreen)
+   ```typescript
+   "Store compressed copies of scanned images"
+   Default: false (respect user choice)
+   ```
+
+2. **Update ScanHistoryItem Type**
+   ```typescript
+   interface ScanHistoryItem {
+     imageUri?: string;              // Original image path
+     thumbnailUri?: string;          // 72x72 thumbnail (always)
+     compressedImageUri?: string;    // 800px compressed (if enabled)
+     imageMetadata?: {
+       originalSize: number;         // Bytes
+       compressedSize: number;       // Bytes
+       dimensions: { width: number; height: number };
+     };
+   }
+   ```
+
+3. **Image Processing Pipeline**
+   ```typescript
+   async function processImageForHistory(
+     originalUri: string,
+     settings: StorageSettings
+   ): Promise<ImageData> {
+     // Always create thumbnail
+     const thumbnail = await createThumbnail(originalUri, 72);
+     
+     // Optionally create compressed copy
+     let compressed = null;
+     if (settings.storeResizedImages) {
+       compressed = await compressImage(originalUri, {
+         maxWidth: 800,
+         maxHeight: 800,
+         quality: getQualityValue(settings.imageQuality),
+       });
+     }
+     
+     return { thumbnail, compressed };
+   }
+   ```
+
+4. **Storage Management**
+   - Store in app's document directory (persistent)
+   - Implement cleanup on item deletion
+   - Add "Clear Image Cache" option
+   - Monitor total storage usage
+
+5. **Migration Strategy**
+   ```typescript
+   // For existing items without thumbnails
+   async function migrateHistoryImages() {
+     const items = await historyService.getItems();
+     for (const item of items) {
+       if (item.imageUri && !item.thumbnailUri) {
+         const thumbnail = await createThumbnail(item.imageUri, 72);
+         await historyService.updateItem(item.id, { 
+           thumbnailUri: thumbnail 
+         });
+       }
+     }
+   }
+   ```
+
+**Considerations:**
+- **Privacy**: User controls whether to keep copies
+- **Storage**: Monitor and alert if approaching limits
+- **Cleanup**: Auto-delete when clearing history
+- **Performance**: Process images in background
+- **Fallback**: Gracefully handle missing images
+
+**Estimated Effort:**
+- Design settings UI: 2 hours
+- Image processing pipeline: 4 hours
+- Storage management: 3 hours
+- Migration utility: 2 hours
+- Testing: 3 hours
+- **Total: 1-2 days**
+
+**Dependencies:**
+- expo-image-manipulator (already installed)
+- expo-file-system for file management
+
+**User Story:**
+```
+As a user who scans many products,
+I want the option to store compressed copies of images,
+So that my history doesn't consume excessive storage,
+And I can view past scans even if I delete the originals.
+```
+
+---
+
+## �📚 References
 
 - [Expo SecureStore Docs](https://docs.expo.dev/versions/latest/sdk/securestore/)
 - [React Native FlatList Performance](https://reactnative.dev/docs/optimizing-flatlist-configuration)

@@ -30,6 +30,7 @@ Architecture: Service → Hook → Component → Screen
 - Search by product name/brand
 - Filter by favorites
 - Sort by date/name/favorite
+- Add/edit product names inline
 
 ✅ **Favorites**
 - Heart icon toggle
@@ -176,6 +177,7 @@ Architecture: Service → Hook → Component → Screen
 - [ ] Users can save scans
 - [ ] Users can view history list
 - [ ] Users can mark favorites
+- [ ] Users can add/edit product names
 - [ ] Users can search by name
 - [ ] Users can delete scans
 - [ ] Data persists after restart
@@ -303,9 +305,22 @@ npm test -- --watch history
 ## 🔗 Related Documents
 
 - **Full Plan**: [SPRINT-4-HISTORY-FAVORITES.md](./SPRINT-4-HISTORY-FAVORITES.md)
+- **UI/UX Specifications**: [SPRINT-4-UI-UX-SPECS.md](./SPRINT-4-UI-UX-SPECS.md) ⭐ NEW
 - **Architecture Decision**: [ARCHITECTURE-DECISIONS.md](./ARCHITECTURE-DECISIONS.md#adr-001-json-storage-for-history-sprint-4)
 - **Type System**: [02-type-system.md](./02-type-system.md)
 - **Storage Service**: [01-architecture.md](./01-architecture.md)
+
+---
+
+## 🔮 Future Enhancements (Post-Sprint 4)
+
+### Resized Image Storage (Optional)
+- User preference to store compressed copies of scanned images
+- Reduces storage footprint (original → thumbnail + compressed)
+- Improves performance with 500+ scans
+- Images persist even if originals deleted
+- **Estimated effort**: 1-2 days
+- **See full plan**: [SPRINT-4-HISTORY-FAVORITES.md](./SPRINT-4-HISTORY-FAVORITES.md#-future-considerations-post-sprint-4)
 
 ---
 

@@ -90,12 +90,28 @@ Welcome to the complete implementation documentation for NutriScan AI.
   - 10-day implementation timeline
   - Test strategy and acceptance criteria
 
+- **[SPRINT-4-UI-UX-SPECS.md](./SPRINT-4-UI-UX-SPECS.md)** - Sprint 4 UI/UX Design ⭐
+  - Professional Neon Clarity design for history feature
+  - Complete component specifications with code
+  - Animations and transitions
+  - Accessibility compliance (WCAG AA)
+  - Performance optimizations
+  - Responsive design guidelines
+
 - **[SPRINT-4-QUICK-REF.md](./SPRINT-4-QUICK-REF.md)** - Sprint 4 Quick Reference
   - At-a-glance overview
   - Architecture diagram
   - Daily task breakdown
   - UI mockups
   - Success criteria checklist
+
+- **[SPRINT-4-RN-BEST-PRACTICES-REVIEW.md](./SPRINT-4-RN-BEST-PRACTICES-REVIEW.md)** - React Native Best Practices Review ⭐⭐
+  - Complete code review against RN best practices
+  - Grade: A- (92/100) with detailed scoring
+  - 7 critical fixes identified (useMemo, optimistic updates, cache invalidation)
+  - Performance optimization recommendations
+  - Updated code examples with fixes applied
+  - Priority matrix for implementation
 
 - **[ARCHITECTURE-DECISIONS.md](./ARCHITECTURE-DECISIONS.md)** - ADR Log
   - ADR-001: JSON storage for history (Sprint 4)
