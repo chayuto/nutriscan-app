@@ -364,11 +364,15 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 **Progress**: 95% complete - Ready for device testing!
 
-### v1.1 (Q1 2026)
+### v1.1 (Q1 2026) - Sprint 4: History & Favorites
 
-- [ ] Scan history
-- [ ] Favorite items
+- [ ] Scan history (JSON-based storage)
+- [ ] Favorite items (with toggle)
 - [ ] Search and filter
+- [ ] Statistics dashboard
+- [ ] Export/import data
+
+**Plan**: See [SPRINT-4-HISTORY-FAVORITES.md](./docs/SPRINT-4-HISTORY-FAVORITES.md)
 
 ### v1.2 (Q2 2026)
 

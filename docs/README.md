@@ -81,6 +81,32 @@ Welcome to the complete implementation documentation for NutriScan AI.
   - Phase 4 planning (screens)
   - Path to MVP roadmap
 
+### Sprint Planning Documents
+
+- **[SPRINT-4-HISTORY-FAVORITES.md](./SPRINT-4-HISTORY-FAVORITES.md)** - Sprint 4 Plan 📋
+  - Scan history and favorites implementation
+  - JSON storage architecture with migration path
+  - Complete service, hooks, and UI specifications
+  - 10-day implementation timeline
+  - Test strategy and acceptance criteria
+
+- **[SPRINT-4-QUICK-REF.md](./SPRINT-4-QUICK-REF.md)** - Sprint 4 Quick Reference
+  - At-a-glance overview
+  - Architecture diagram
+  - Daily task breakdown
+  - UI mockups
+  - Success criteria checklist
+
+- **[ARCHITECTURE-DECISIONS.md](./ARCHITECTURE-DECISIONS.md)** - ADR Log
+  - ADR-001: JSON storage for history (Sprint 4)
+  - ADR-002: Neon Clarity design system
+  - ADR-003: OpenAI Vision API
+  - ADR-004: Expo framework
+  - ADR-005: TypeScript strict mode
+  - ADR-006: No Redux
+  - ADR-007: Test-driven development
+  - Path to MVP roadmap
+
 ### Original Design Reference
 
 - **[design.md](./design.md)** - Original Neon Clarity theme specification
