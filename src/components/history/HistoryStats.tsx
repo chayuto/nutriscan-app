@@ -13,7 +13,6 @@
 
 import React, { memo } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { BlurView } from '@react-native-community/blur';
 import { colors, spacing, typography, borderRadius, shadows } from '@/theme';
 import type { HistoryStats as HistoryStatsType } from '@/types/history.types';
 
@@ -44,14 +43,9 @@ export const HistoryStats: React.FC<HistoryStatsProps> = memo(
     if (isLoading) {
       return (
         <View style={styles.container} testID={testID}>
-          <BlurView
-            blurType="dark"
-            blurAmount={10}
-            reducedTransparencyFallbackColor={colors.surfaceDark}
-            style={styles.blurContainer}
-          >
+          <View style={styles.blurContainer}>
             <Text style={styles.loadingText}>Loading stats...</Text>
-          </BlurView>
+          </View>
         </View>
       );
     }
@@ -65,12 +59,7 @@ export const HistoryStats: React.FC<HistoryStatsProps> = memo(
 
     return (
       <View style={styles.container} testID={testID}>
-        <BlurView
-          blurType="dark"
-          blurAmount={10}
-          reducedTransparencyFallbackColor={colors.surfaceDark}
-          style={styles.blurContainer}
-        >
+        <View style={styles.blurContainer}>
           <View style={styles.content}>
             {/* Title */}
             <Text style={styles.title}>Your Statistics</Text>
@@ -109,7 +98,7 @@ export const HistoryStats: React.FC<HistoryStatsProps> = memo(
               {/* Streak */}
               {stats.currentStreak > 0 && (
                 <View style={styles.secondaryStatItem}>
-                  <Text style={styles.streakIcon}>🔥</Text>
+                  <Text style={styles.streakIcon}>#</Text>
                   <Text style={styles.secondaryStatText}>{stats.currentStreak} day streak</Text>
                 </View>
               )}
@@ -133,7 +122,7 @@ export const HistoryStats: React.FC<HistoryStatsProps> = memo(
               )}
             </View>
           </View>
-        </BlurView>
+        </View>
       </View>
     );
   }
@@ -150,7 +139,7 @@ const styles = StyleSheet.create({
     ...shadows.md,
   },
   blurContainer: {
-    backgroundColor: colors.surface,
+    backgroundColor: colors.surfaceDark,
     borderWidth: 1,
     borderColor: colors.border,
     borderRadius: borderRadius.xl,

@@ -14,7 +14,6 @@
 
 import React, { memo } from 'react';
 import { View, Text, Image, StyleSheet, Pressable, ActivityIndicator } from 'react-native';
-import { BlurView } from '@react-native-community/blur';
 import { colors, spacing, typography, borderRadius, shadows } from '@/theme';
 import type { ScanHistoryItem } from '@/types/history.types';
 
@@ -129,12 +128,7 @@ export const HistoryListItem: React.FC<HistoryListItemProps> = memo(
         accessibilityState={{ disabled: isDeleting }}
         testID={testID}
       >
-        <BlurView
-          blurType="dark"
-          blurAmount={10}
-          reducedTransparencyFallbackColor={colors.surfaceDark}
-          style={styles.blurContainer}
-        >
+        <View style={styles.blurContainer}>
           <View style={styles.content}>
             {/* Thumbnail */}
             <View style={styles.thumbnailContainer}>
@@ -148,7 +142,7 @@ export const HistoryListItem: React.FC<HistoryListItemProps> = memo(
                 />
               ) : (
                 <View style={styles.thumbnailPlaceholder}>
-                  <Text style={styles.thumbnailPlaceholderText}>📷</Text>
+                  <Text style={styles.thumbnailPlaceholderText}>IMG</Text>
                 </View>
               )}
             </View>
@@ -214,7 +208,7 @@ export const HistoryListItem: React.FC<HistoryListItemProps> = memo(
                 {isTogglingFavorite ? (
                   <ActivityIndicator size="small" color={colors.primary} />
                 ) : (
-                  <Text style={styles.favoriteIcon}>{item.isFavorite ? '⭐' : '☆'}</Text>
+                  <Text style={styles.favoriteIcon}>{item.isFavorite ? '★' : '☆'}</Text>
                 )}
               </Pressable>
 
@@ -236,13 +230,13 @@ export const HistoryListItem: React.FC<HistoryListItemProps> = memo(
                   {isDeleting ? (
                     <ActivityIndicator size="small" color={colors.error} />
                   ) : (
-                    <Text style={styles.deleteIcon}>🗑️</Text>
+                    <Text style={styles.deleteIcon}>X</Text>
                   )}
                 </Pressable>
               )}
             </View>
           </View>
-        </BlurView>
+        </View>
       </Pressable>
     );
   }
@@ -266,7 +260,7 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
   blurContainer: {
-    backgroundColor: colors.surface,
+    backgroundColor: colors.surfaceDark,
     borderWidth: 1,
     borderColor: colors.border,
     borderRadius: borderRadius.xl,

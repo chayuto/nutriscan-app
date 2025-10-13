@@ -12,7 +12,6 @@
 
 import React, { memo, useState, useEffect } from 'react';
 import { View, TextInput, StyleSheet, Pressable, Text } from 'react-native';
-import { BlurView } from '@react-native-community/blur';
 import { colors, spacing, typography, borderRadius } from '@/theme';
 
 export interface SearchBarProps {
@@ -85,15 +84,10 @@ export const SearchBar: React.FC<SearchBarProps> = memo(
 
     return (
       <View style={styles.container} testID={testID}>
-        <BlurView
-          blurType="dark"
-          blurAmount={10}
-          reducedTransparencyFallbackColor={colors.surfaceDark}
-          style={[styles.blurContainer, isFocused && styles.blurContainerFocused]}
-        >
+        <View style={[styles.blurContainer, isFocused && styles.blurContainerFocused]}>
           <View style={styles.inputContainer}>
             {/* Search Icon */}
-            <Text style={styles.icon}>🔍</Text>
+            <Text style={styles.icon}>Q</Text>
 
             {/* Text Input */}
             <TextInput
@@ -131,7 +125,7 @@ export const SearchBar: React.FC<SearchBarProps> = memo(
               </Pressable>
             )}
           </View>
-        </BlurView>
+        </View>
       </View>
     );
   }
@@ -145,7 +139,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
   },
   blurContainer: {
-    backgroundColor: colors.surface,
+    backgroundColor: colors.surfaceDark,
     borderWidth: 1,
     borderColor: colors.border,
     borderRadius: borderRadius.lg,

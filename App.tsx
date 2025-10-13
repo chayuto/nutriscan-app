@@ -9,7 +9,7 @@ import {
 } from '@expo-google-fonts/inter';
 import * as SplashScreen from 'expo-splash-screen';
 
-import { HomeScreen, ReportScreen, SettingsScreen } from './src/screens';
+import { HomeScreen, ReportScreen, SettingsScreen, HistoryScreen } from './src/screens';
 import type { NutritionData } from './src/types/nutrition.types';
 
 // Prevent auto-hide of splash screen
@@ -29,7 +29,7 @@ SplashScreen.preventAutoHideAsync();
  */
 export default function App() {
   // Navigation state
-  type Screen = 'home' | 'report' | 'settings';
+  type Screen = 'home' | 'report' | 'settings' | 'history';
   const [currentScreen, setCurrentScreen] = useState<Screen>('home');
 
   // Report data (passed from Home to Report)
@@ -67,8 +67,18 @@ export default function App() {
     setCurrentScreen('settings');
   };
 
+  const handleNavigateToHistory = () => {
+    setCurrentScreen('history');
+  };
+
   const handleBackToHome = () => {
     setCurrentScreen('home');
+  };
+
+  // Handle view report from history (imageUri may be missing if image was deleted)
+  const handleViewReportFromHistory = (data: NutritionData, imageUri?: string) => {
+    setReportData({ nutritionData: data, imageUri: imageUri || '' });
+    setCurrentScreen('report');
   };
 
   // Render current screen
@@ -79,6 +89,7 @@ export default function App() {
           <HomeScreen
             onAnalysisComplete={handleAnalysisComplete}
             onNavigateToSettings={handleNavigateToSettings}
+            onNavigateToHistory={handleNavigateToHistory}
           />
         );
 
@@ -98,6 +109,15 @@ export default function App() {
 
       case 'settings':
         return <SettingsScreen onBack={handleBackToHome} />;
+
+      case 'history':
+        return (
+          <HistoryScreen
+            onBack={handleBackToHome}
+            onNavigateToSettings={handleNavigateToSettings}
+            onViewReport={handleViewReportFromHistory}
+          />
+        );
 
       default:
         return (
