@@ -162,7 +162,7 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingHorizontal: spacing.lg,
     paddingTop: spacing.xl,
-    paddingBottom: 150, // Large padding to ensure all inputs and buttons are fully visible
+    paddingBottom: spacing.lg, // Reduced since footer now has its own padding
   },
   header: {
     alignItems: 'center',
@@ -191,8 +191,8 @@ const styles = StyleSheet.create({
   },
   footer: {
     paddingHorizontal: spacing.lg,
-    paddingTop: spacing.lg,
-    paddingBottom: spacing.xxl + spacing.lg, // 72px (48 + 24) for Android nav bar
+    paddingVertical: spacing.lg,
+    paddingBottom: spacing.xxl + spacing.lg, // 72px for Android nav bar clearance
     borderTopWidth: 1,
     borderTopColor: colors.border,
     backgroundColor: colors.background,
