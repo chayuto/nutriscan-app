@@ -143,7 +143,7 @@ describe('History Components', () => {
       const noImageItem = { ...mockItem, imageUri: undefined };
       const { getByText } = render(<HistoryListItem item={noImageItem} />);
 
-      expect(getByText('📷')).toBeTruthy();
+      expect(getByText('IMG')).toBeTruthy();
     });
 
     it('should show unnamed product when no name', () => {
@@ -347,7 +347,7 @@ describe('History Components', () => {
     it('should render with filled star when favorite', () => {
       const { getByText } = render(<FavoriteButton isFavorite={true} onPress={jest.fn()} />);
 
-      expect(getByText('⭐')).toBeTruthy();
+      expect(getByText('★')).toBeTruthy();
     });
 
     it('should call onPress when pressed', () => {
@@ -428,7 +428,7 @@ describe('History Components', () => {
     it('should show streak when available', () => {
       const { getByText } = render(<HistoryStats stats={mockStats} />);
 
-      expect(getByText('🔥')).toBeTruthy();
+      expect(getByText('#')).toBeTruthy();
       expect(getByText('3 day streak')).toBeTruthy();
     });
 
