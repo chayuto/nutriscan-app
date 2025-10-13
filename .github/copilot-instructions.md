@@ -248,3 +248,5 @@ Theme:       camelCase.ts         (colors.ts)
 
 **Remember**: Production-grade = type-safe + accessible + performant + well-tested.  
 Every component handles loading/error/empty states. Every API call has retry logic + timeout. Every interaction has visual feedback.
+
+Excessive console logging is OK for debugging

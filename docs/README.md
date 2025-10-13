@@ -81,6 +81,65 @@ Welcome to the complete implementation documentation for NutriScan AI.
   - Phase 4 planning (screens)
   - Path to MVP roadmap
 
+### Sprint Planning Documents
+
+- **[SPRINT-4-HISTORY-FAVORITES.md](./SPRINT-4-HISTORY-FAVORITES.md)** - Sprint 4 Plan 📋
+  - Scan history and favorites implementation
+  - JSON storage architecture with migration path
+  - Complete service, hooks, and UI specifications
+  - 10-day implementation timeline
+  - Test strategy and acceptance criteria
+
+- **[SPRINT-4-UI-UX-SPECS.md](./SPRINT-4-UI-UX-SPECS.md)** - Sprint 4 UI/UX Design ⭐
+  - Professional Neon Clarity design for history feature
+  - Complete component specifications with code
+  - Animations and transitions
+  - Accessibility compliance (WCAG AA)
+  - Performance optimizations
+  - Responsive design guidelines
+
+- **[SPRINT-4-QUICK-REF.md](./SPRINT-4-QUICK-REF.md)** - Sprint 4 Quick Reference
+  - At-a-glance overview
+  - Architecture diagram
+  - Daily task breakdown
+  - UI mockups
+  - Success criteria checklist
+
+- **[SPRINT-4-RN-BEST-PRACTICES-REVIEW.md](./SPRINT-4-RN-BEST-PRACTICES-REVIEW.md)** - React Native Best Practices Review ⭐⭐
+  - Complete code review against RN best practices
+  - Grade: A- (92/100) with detailed scoring
+  - 7 critical fixes identified (useMemo, optimistic updates, cache invalidation)
+  - Performance optimization recommendations
+  - Updated code examples with fixes applied
+  - Priority matrix for implementation
+
+- **[SPRINT-4-IMAGE-STORAGE-STRATEGY.md](./SPRINT-4-IMAGE-STORAGE-STRATEGY.md)** - Image Storage Strategy 📸
+  - Core principle: Store RESIZED copies only (3KB thumbnails + 75KB compressed)
+  - NEVER store full-resolution duplicates (would be 1.5GB for 500 scans!)
+  - Storage comparison: 99.9% reduction (3KB vs 3MB per image)
+  - Complete implementation guide with code examples
+  - User settings and cleanup strategies
+  - Real-world storage benchmarks
+
+- **[ARCHITECTURE-DECISIONS.md](./ARCHITECTURE-DECISIONS.md)** - ADR Log
+  - ADR-001: JSON storage for history (Sprint 4)
+  - ADR-002: Neon Clarity design system
+  - ADR-003: OpenAI Vision API
+  - ADR-004: Expo framework
+  - ADR-005: TypeScript strict mode
+  - ADR-006: No Redux
+  - ADR-007: Test-driven development
+  - Path to MVP roadmap
+
+### Technical Clarifications
+
+- **[IMAGE-URI-FLOW-CLARIFICATION.md](./IMAGE-URI-FLOW-CLARIFICATION.md)** - Image URI Source Explained 📸
+  - Clarifies that OpenAI does NOT return images
+  - Documents how imageUri comes from camera/gallery
+  - Explains data flow: Camera → HomeScreen → ReportScreen → History
+  - Covers edge cases (missing images, OS cleanup)
+  - Future enhancement: Resized image storage
+
 ### Original Design Reference
 
 - **[design.md](./design.md)** - Original Neon Clarity theme specification
