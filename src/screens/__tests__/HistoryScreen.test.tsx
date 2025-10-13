@@ -131,7 +131,9 @@ describe('HistoryScreen', () => {
     it('should render statistics when items exist', () => {
       const { getByText } = render(<HistoryScreen {...defaultProps} />);
 
-      expect(getByText('Your Statistics')).toBeTruthy();
+      // New simplified design: Check for Total Scans and Favorites
+      expect(getByText('Total Scans')).toBeTruthy();
+      expect(getByText('Favorites')).toBeTruthy();
     });
 
     it('should render filter tabs', () => {

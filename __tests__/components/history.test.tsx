@@ -411,37 +411,14 @@ describe('History Components', () => {
   });
 
   describe('HistoryStats', () => {
-    it('should render all statistics', () => {
+    it('should render simplified statistics', () => {
       const { getByText } = render(<HistoryStats stats={mockStats} />);
 
-      expect(getByText('Your Statistics')).toBeTruthy();
+      // New simplified design: Only shows Total Scans and Favorites
       expect(getByText('42')).toBeTruthy(); // totalScans
       expect(getByText('10')).toBeTruthy(); // favoritesCount
-      expect(getByText('5')).toBeTruthy(); // scansThisWeek
-      expect(getByText('15')).toBeTruthy(); // scansThisMonth
       expect(getByText('Total Scans')).toBeTruthy();
       expect(getByText('Favorites')).toBeTruthy();
-      expect(getByText('This Week')).toBeTruthy();
-      expect(getByText('This Month')).toBeTruthy();
-    });
-
-    it('should show streak when available', () => {
-      const { getByText } = render(<HistoryStats stats={mockStats} />);
-
-      expect(getByText('#')).toBeTruthy();
-      expect(getByText('3 day streak')).toBeTruthy();
-    });
-
-    it('should show average calories', () => {
-      const { getByText } = render(<HistoryStats stats={mockStats} />);
-
-      expect(getByText('Avg: 350 cal')).toBeTruthy();
-    });
-
-    it('should show most scanned product', () => {
-      const { getByText } = render(<HistoryStats stats={mockStats} />);
-
-      expect(getByText('Most: Favorite Cereal')).toBeTruthy();
     });
 
     it('should format large numbers with k suffix', () => {
