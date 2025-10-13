@@ -1,12 +1,11 @@
 /**
  * HistoryStats Component
  *
- * Displays scan history statistics with:
- * - Total scans
+ * Displays compact scan history statistics:
+ * - Total scans count
  * - Favorites count
- * - Weekly/monthly activity
- * - Current streak
- * - Average calories
+ *
+ * Simplified design to save screen space while showing essential metrics.
  *
  * Part of Sprint 4: History & Favorites feature
  */
@@ -61,16 +60,16 @@ export const HistoryStats: React.FC<HistoryStatsProps> = memo(
       <View style={styles.container} testID={testID}>
         <View style={styles.blurContainer}>
           <View style={styles.content}>
-            {/* Title */}
-            <Text style={styles.title}>Your Statistics</Text>
-
-            {/* Stats Grid */}
-            <View style={styles.grid}>
+            {/* Compact Stats Row */}
+            <View style={styles.statsRow}>
               {/* Total Scans */}
               <View style={styles.statItem}>
                 <Text style={styles.statValue}>{formatNumber(stats.totalScans)}</Text>
                 <Text style={styles.statLabel}>Total Scans</Text>
               </View>
+
+              {/* Divider */}
+              <View style={styles.divider} />
 
               {/* Favorites */}
               <View style={styles.statItem}>
@@ -79,47 +78,6 @@ export const HistoryStats: React.FC<HistoryStatsProps> = memo(
                 </Text>
                 <Text style={styles.statLabel}>Favorites</Text>
               </View>
-
-              {/* This Week */}
-              <View style={styles.statItem}>
-                <Text style={styles.statValue}>{formatNumber(stats.scansThisWeek)}</Text>
-                <Text style={styles.statLabel}>This Week</Text>
-              </View>
-
-              {/* This Month */}
-              <View style={styles.statItem}>
-                <Text style={styles.statValue}>{formatNumber(stats.scansThisMonth)}</Text>
-                <Text style={styles.statLabel}>This Month</Text>
-              </View>
-            </View>
-
-            {/* Secondary Stats */}
-            <View style={styles.secondaryStats}>
-              {/* Streak */}
-              {stats.currentStreak > 0 && (
-                <View style={styles.secondaryStatItem}>
-                  <Text style={styles.streakIcon}>#</Text>
-                  <Text style={styles.secondaryStatText}>{stats.currentStreak} day streak</Text>
-                </View>
-              )}
-
-              {/* Average Calories */}
-              {stats.averageCalories > 0 && (
-                <View style={styles.secondaryStatItem}>
-                  <Text style={styles.secondaryStatText}>
-                    Avg: {Math.round(stats.averageCalories)} cal
-                  </Text>
-                </View>
-              )}
-
-              {/* Most Scanned */}
-              {stats.mostScannedProduct && (
-                <View style={styles.secondaryStatItem}>
-                  <Text style={styles.secondaryStatText} numberOfLines={1}>
-                    Most: {stats.mostScannedProduct}
-                  </Text>
-                </View>
-              )}
             </View>
           </View>
         </View>
@@ -145,12 +103,7 @@ const styles = StyleSheet.create({
     borderRadius: borderRadius.xl,
   },
   content: {
-    padding: spacing.lg,
-  },
-  title: {
-    ...typography.h3,
-    color: colors.text,
-    marginBottom: spacing.md,
+    padding: spacing.md,
   },
   loadingText: {
     ...typography.body,
@@ -158,21 +111,21 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     paddingVertical: spacing.xl,
   },
-  grid: {
+  statsRow: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    marginHorizontal: -spacing.xs,
+    alignItems: 'center',
+    justifyContent: 'space-around',
   },
   statItem: {
-    width: '50%',
-    paddingHorizontal: spacing.xs,
-    paddingVertical: spacing.sm,
+    flex: 1,
     alignItems: 'center',
   },
   statValue: {
     ...typography.h2,
+    fontSize: 28,
     color: colors.text,
     marginBottom: spacing.xs,
+    fontWeight: '700',
   },
   statValueAccent: {
     color: colors.primary,
@@ -180,27 +133,11 @@ const styles = StyleSheet.create({
   statLabel: {
     ...typography.caption,
     color: colors.textSecondary,
+    fontSize: 12,
   },
-  secondaryStats: {
-    marginTop: spacing.md,
-    paddingTop: spacing.md,
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
-    gap: spacing.xs,
-  },
-  secondaryStatItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.xs,
-  },
-  streakIcon: {
-    fontSize: 14,
-    color: colors.primary,
-    fontWeight: '700',
-  },
-  secondaryStatText: {
-    ...typography.caption,
-    color: colors.textSecondary,
-    flex: 1,
+  divider: {
+    width: 1,
+    height: 40,
+    backgroundColor: colors.border,
   },
 });

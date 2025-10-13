@@ -1,13 +1,15 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import {
   View,
   Text,
+  TextInput,
   StyleSheet,
   SafeAreaView,
   Modal,
   ScrollView,
   Pressable,
   Alert,
+  BackHandler,
 } from 'react-native';
 import { HistoryList, HistoryStats, SearchBar } from '@/components/history';
 import { useHistory } from '@/hooks/useHistory';
@@ -56,8 +58,17 @@ export const HistoryScreen: React.FC<HistoryScreenProps> = ({
   testID = 'history-screen',
 }) => {
   // History hook with all operations
-  const { items, stats, isLoading, error, toggleFavorite, deleteItem, clearHistory, refresh } =
-    useHistory();
+  const {
+    items,
+    stats,
+    isLoading,
+    error,
+    toggleFavorite,
+    deleteItem,
+    clearHistory,
+    refresh,
+    updateItem,
+  } = useHistory();
 
   // Local state for UI interactions and filtering
   const [searchQuery, setSearchQuery] = useState('');
@@ -66,6 +77,10 @@ export const HistoryScreen: React.FC<HistoryScreenProps> = ({
   const [togglingItemId, setTogglingItemId] = useState<string | null>(null);
   const [deletingItemId, setDeletingItemId] = useState<string | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
+
+  // Inline editing state
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [editedName, setEditedName] = useState('');
 
   // Filter items based on search query and active filter
   const filteredItems = useMemo(() => {
@@ -97,6 +112,36 @@ export const HistoryScreen: React.FC<HistoryScreenProps> = ({
     // Sort by timestamp (newest first)
     return filtered.sort((a, b) => b.timestamp - a.timestamp);
   }, [items, searchQuery, activeFilter]);
+
+  // Sync selectedItem with items array when items update
+  // This ensures the modal shows fresh data after edits
+  useEffect(() => {
+    if (selectedItem) {
+      const updatedItem = items.find((item) => item.id === selectedItem.id);
+      if (updatedItem && updatedItem.productName !== selectedItem.productName) {
+        setSelectedItem(updatedItem);
+      }
+    }
+  }, [items, selectedItem]);
+
+  // Handle Android hardware back button
+  useEffect(() => {
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
+      // If modal is open, close it
+      if (selectedItem) {
+        setSelectedItem(null);
+        setIsEditingName(false);
+        setEditedName('');
+        return true; // Prevent default behavior (exit app)
+      }
+
+      // Otherwise, navigate back to home
+      onBack();
+      return true; // Prevent default behavior (exit app)
+    });
+
+    return () => backHandler.remove();
+  }, [selectedItem, onBack]);
 
   // Handle search query changes (debounced in SearchBar component)
   const handleSearchChange = useCallback((query: string) => {
@@ -173,6 +218,41 @@ export const HistoryScreen: React.FC<HistoryScreenProps> = ({
   // Close detail modal
   const handleCloseDetail = useCallback(() => {
     setSelectedItem(null);
+    setIsEditingName(false);
+    setEditedName('');
+  }, []);
+
+  // Start editing product name
+  const handleStartEditName = useCallback(() => {
+    if (selectedItem) {
+      setEditedName(selectedItem.productName || '');
+      setIsEditingName(true);
+    }
+  }, [selectedItem]);
+
+  // Save edited product name
+  const handleSaveName = useCallback(async () => {
+    if (selectedItem && editedName.trim() && editedName.trim() !== selectedItem.productName) {
+      const newName = editedName.trim();
+
+      try {
+        // Update item in storage (this calls refresh internally in the hook)
+        await updateItem(selectedItem.id, { productName: newName });
+
+        // Update the modal's selected item immediately with new name
+        setSelectedItem({ ...selectedItem, productName: newName });
+      } catch (err) {
+        console.error('Failed to save product name:', err);
+        Alert.alert('Error', 'Failed to update product name. Please try again.');
+      }
+    }
+    setIsEditingName(false);
+  }, [selectedItem, editedName, updateItem]);
+
+  // Cancel editing
+  const handleCancelEdit = useCallback(() => {
+    setIsEditingName(false);
+    setEditedName('');
   }, []);
 
   // Handle view full report from detail modal
@@ -347,7 +427,48 @@ export const HistoryScreen: React.FC<HistoryScreenProps> = ({
             <View style={styles.detailCard}>
               <View style={styles.detailHeader}>
                 <View style={styles.detailHeaderText}>
-                  <Text style={styles.detailProductName}>{productName || 'Unnamed Product'}</Text>
+                  {isEditingName ? (
+                    <View style={styles.editNameContainer}>
+                      <TextInput
+                        value={editedName}
+                        onChangeText={setEditedName}
+                        onSubmitEditing={handleSaveName}
+                        onBlur={handleSaveName}
+                        autoFocus
+                        placeholder="Enter product name"
+                        placeholderTextColor={colors.textMuted}
+                        style={styles.editNameInput}
+                        returnKeyType="done"
+                        accessible={true}
+                        accessibilityLabel="Edit product name"
+                        accessibilityHint="Enter new product name and press done"
+                      />
+                      <Pressable
+                        onPress={handleCancelEdit}
+                        style={styles.editCancelButton}
+                        accessible={true}
+                        accessibilityRole="button"
+                        accessibilityLabel="Cancel editing"
+                      >
+                        <Text style={styles.editCancelText}>✕</Text>
+                      </Pressable>
+                    </View>
+                  ) : (
+                    <View style={styles.productNameRow}>
+                      <Text style={styles.detailProductName}>
+                        {productName || 'Unnamed Product'}
+                      </Text>
+                      <Pressable
+                        onPress={handleStartEditName}
+                        style={styles.editButton}
+                        accessible={true}
+                        accessibilityRole="button"
+                        accessibilityLabel="Edit product name"
+                      >
+                        <Text style={styles.editIcon}>✎</Text>
+                      </Pressable>
+                    </View>
+                  )}
                 </View>
                 <Text style={styles.detailFavoriteIcon}>{isFavorite ? '★' : '☆'}</Text>
               </View>
@@ -599,7 +720,8 @@ const styles = StyleSheet.create({
   },
   footer: {
     paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
+    paddingTop: spacing.md,
+    paddingBottom: spacing.xxl + spacing.md, // 48px + 16px = 64px for Android nav bar
     borderTopWidth: 1,
     borderTopColor: colors.border,
   },
@@ -718,5 +840,51 @@ const styles = StyleSheet.create({
   viewReportButtonText: {
     ...typography.button,
     color: colors.primary,
+  },
+
+  // Inline editing styles
+  productNameRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
+  editButton: {
+    padding: spacing.xs,
+    borderRadius: borderRadius.sm,
+    backgroundColor: colors.surface,
+  },
+  editIcon: {
+    fontSize: 18,
+    color: colors.primary,
+    fontWeight: '600',
+  },
+  editNameContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    width: '100%',
+  },
+  editNameInput: {
+    flex: 1,
+    ...typography.h2,
+    fontSize: 24,
+    color: colors.text,
+    backgroundColor: colors.progressTrack,
+    borderWidth: 1,
+    borderColor: colors.primary,
+    borderRadius: borderRadius.md,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
+    ...shadows.glow,
+  },
+  editCancelButton: {
+    padding: spacing.sm,
+    borderRadius: borderRadius.sm,
+    backgroundColor: colors.surface,
+  },
+  editCancelText: {
+    fontSize: 18,
+    color: colors.error,
+    fontWeight: '700',
   },
 });

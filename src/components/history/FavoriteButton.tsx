@@ -100,7 +100,12 @@ export const FavoriteButton: React.FC<FavoriteButtonProps> = memo(
         {isLoading ? (
           <ActivityIndicator size="small" color={isFavorite ? colors.text : colors.primary} />
         ) : (
-          <Text style={[styles.icon, { fontSize: iconSize, color: isFavorite ? colors.primary : colors.textSecondary }]}>
+          <Text
+            style={[
+              styles.icon,
+              { fontSize: iconSize, color: isFavorite ? colors.primary : colors.textSecondary },
+            ]}
+          >
             {isFavorite ? '★' : '☆'}
           </Text>
         )}

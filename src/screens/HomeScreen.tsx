@@ -215,7 +215,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: spacing.lg,
     paddingTop: spacing.xl,
-    paddingBottom: spacing.lg,
+    paddingBottom: spacing.xxl + spacing.md, // 64px for Android nav bar clearance
   },
   header: {
     alignItems: 'center',

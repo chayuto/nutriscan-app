@@ -191,7 +191,8 @@ const styles = StyleSheet.create({
   },
   footer: {
     paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.lg,
+    paddingTop: spacing.lg,
+    paddingBottom: spacing.xxl + spacing.lg, // 72px (48 + 24) for Android nav bar
     borderTopWidth: 1,
     borderTopColor: colors.border,
     backgroundColor: colors.background,
