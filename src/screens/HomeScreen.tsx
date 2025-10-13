@@ -166,7 +166,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                   accessibilityRole="button"
                   accessibilityLabel="View scan history"
                 >
-                  <Text style={styles.historyLinkText}>📋 View History</Text>
+                  <Text style={styles.historyLinkText}>◉ View History</Text>
                 </Pressable>
               )}
             </View>

@@ -9,7 +9,6 @@ import {
   Pressable,
   Alert,
 } from 'react-native';
-import { BlurView } from '@react-native-community/blur';
 import { HistoryList, HistoryStats, SearchBar } from '@/components/history';
 import { useHistory } from '@/hooks/useHistory';
 import { colors } from '@/theme/colors';
@@ -345,31 +344,21 @@ export const HistoryScreen: React.FC<HistoryScreenProps> = ({
           {/* Modal Content */}
           <ScrollView style={styles.modalContent} contentContainerStyle={styles.modalScrollContent}>
             {/* Product Info */}
-            <BlurView
-              blurType="dark"
-              blurAmount={10}
-              reducedTransparencyFallbackColor={colors.surfaceDark}
-              style={styles.detailCard}
-            >
+            <View style={styles.detailCard}>
               <View style={styles.detailHeader}>
                 <View style={styles.detailHeaderText}>
                   <Text style={styles.detailProductName}>{productName || 'Unnamed Product'}</Text>
                 </View>
-                <Text style={styles.detailFavoriteIcon}>{isFavorite ? '⭐' : '☆'}</Text>
+                <Text style={styles.detailFavoriteIcon}>{isFavorite ? '★' : '☆'}</Text>
               </View>
 
               <Text style={styles.detailTimestamp}>
                 Scanned {new Date(timestamp).toLocaleDateString()}
               </Text>
-            </BlurView>
+            </View>
 
             {/* Nutrition Summary */}
-            <BlurView
-              blurType="dark"
-              blurAmount={10}
-              reducedTransparencyFallbackColor={colors.surfaceDark}
-              style={styles.detailCard}
-            >
+            <View style={styles.detailCard}>
               <Text style={styles.detailSectionTitle}>Nutrition Summary</Text>
 
               <View style={styles.detailNutritionGrid}>
@@ -419,7 +408,7 @@ export const HistoryScreen: React.FC<HistoryScreenProps> = ({
                   <Text style={styles.detailNutrientLabel}>Sodium</Text>
                 </View>
               </View>
-            </BlurView>
+            </View>
 
             {/* Actions */}
             {onViewReport && (
@@ -654,7 +643,7 @@ const styles = StyleSheet.create({
     gap: spacing.md,
   },
   detailCard: {
-    backgroundColor: colors.surface,
+    backgroundColor: colors.surfaceDark,
     borderRadius: borderRadius.xl,
     borderWidth: 1,
     borderColor: colors.border,
@@ -682,6 +671,7 @@ const styles = StyleSheet.create({
   detailFavoriteIcon: {
     fontSize: 28,
     marginLeft: spacing.sm,
+    color: colors.primary,
   },
   detailTimestamp: {
     ...typography.caption,
