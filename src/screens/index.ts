@@ -12,3 +12,6 @@ export type { ReportScreenProps } from './ReportScreen';
 
 export { SettingsScreen } from './SettingsScreen';
 export type { SettingsScreenProps } from './SettingsScreen';
+
+export { HistoryScreen } from './HistoryScreen';
+export type { HistoryScreenProps } from './HistoryScreen';
