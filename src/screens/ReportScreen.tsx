@@ -1,8 +1,9 @@
-import React from 'react';
-import { View, Text, StyleSheet, SafeAreaView, ScrollView, Image } from 'react-native';
+import React, { useState, useCallback } from 'react';
+import { View, Text, StyleSheet, SafeAreaView, ScrollView, Image, Alert } from 'react-native';
 import { NutritionCard } from '@/components/nutrition/NutritionCard';
 import { PrimaryButton } from '@/components/base/PrimaryButton';
 import { useThresholds } from '@/hooks/useThresholds';
+import { useHistory } from '@/hooks/useHistory';
 import { colors } from '@/theme/colors';
 import { spacing } from '@/theme/spacing';
 import { typography } from '@/theme/typography';
@@ -39,6 +40,31 @@ export const ReportScreen: React.FC<ReportScreenProps> = ({
 }) => {
   // Load user's thresholds for comparison
   const { thresholds } = useThresholds();
+
+  // History hook for saving scans
+  const { addScan, isAdding } = useHistory();
+
+  // Track if scan has been saved
+  const [isSaved, setIsSaved] = useState(false);
+
+  // Handle save to history
+  const handleSaveToHistory = useCallback(async () => {
+    try {
+      await addScan({
+        nutritionData,
+        imageUri,
+        timestamp: Date.now(),
+        productName: nutritionData.servingSize || 'Unnamed Product',
+        isFavorite: false,
+        tags: [],
+      });
+
+      setIsSaved(true);
+      Alert.alert('Success', 'Scan saved to history!', [{ text: 'OK' }]);
+    } catch {
+      Alert.alert('Error', 'Failed to save scan. Please try again.');
+    }
+  }, [addScan, nutritionData, imageUri]);
 
   return (
     <SafeAreaView style={styles.container} testID={testID}>
@@ -84,8 +110,24 @@ export const ReportScreen: React.FC<ReportScreenProps> = ({
         </Text>
       </ScrollView>
 
-      {/* Fixed Footer with Back Button */}
+      {/* Fixed Footer with Action Buttons */}
       <View style={styles.footer}>
+        {!isSaved ? (
+          <PrimaryButton
+            onPress={handleSaveToHistory}
+            disabled={isAdding}
+            testID={`${testID}-save-button`}
+          >
+            {isAdding ? 'Saving...' : '💾 Save to History'}
+          </PrimaryButton>
+        ) : (
+          <View style={styles.savedIndicator}>
+            <Text style={styles.savedText}>✓ Saved to History</Text>
+          </View>
+        )}
+
+        <View style={styles.buttonSpacer} />
+
         <PrimaryButton onPress={onBack} testID={`${testID}-back-button`}>
           ← Back to Home
         </PrimaryButton>
@@ -148,5 +190,19 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: colors.border,
     backgroundColor: colors.background,
+  },
+  buttonSpacer: {
+    height: spacing.sm,
+  },
+  savedIndicator: {
+    paddingVertical: spacing.md,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: `${colors.primary}20`,
+    borderRadius: 16,
+  },
+  savedText: {
+    ...typography.button,
+    color: colors.primary,
   },
 });

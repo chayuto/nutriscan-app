@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, Alert } from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, Alert, Pressable } from 'react-native';
 import { CameraButton } from '@/components/input/CameraButton';
 import { AnalysisProgress } from '@/components/nutrition/AnalysisProgress';
 import { PrimaryButton } from '@/components/base/PrimaryButton';
@@ -13,6 +13,7 @@ import type { NutritionData } from '@/types/nutrition.types';
 export interface HomeScreenProps {
   onAnalysisComplete: (data: NutritionData, imageUri: string) => void;
   onNavigateToSettings: () => void;
+  onNavigateToHistory?: () => void;
   testID?: string;
 }
 
@@ -37,6 +38,7 @@ export interface HomeScreenProps {
 export const HomeScreen: React.FC<HomeScreenProps> = ({
   onAnalysisComplete,
   onNavigateToSettings,
+  onNavigateToHistory,
   testID = 'home-screen',
 }) => {
   const [lastImageUri, setLastImageUri] = useState<string | null>(null);
@@ -153,6 +155,20 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                 loading={isPicking}
                 testID={`${testID}-gallery-button`}
               />
+
+              {/* History Link */}
+              {onNavigateToHistory && (
+                <Pressable
+                  onPress={onNavigateToHistory}
+                  style={styles.historyLink}
+                  testID={`${testID}-history-link`}
+                  accessible={true}
+                  accessibilityRole="button"
+                  accessibilityLabel="View scan history"
+                >
+                  <Text style={styles.historyLinkText}>📋 View History</Text>
+                </Pressable>
+              )}
             </View>
           )}
 
@@ -226,6 +242,17 @@ const styles = StyleSheet.create({
   },
   buttonSpacer: {
     height: spacing.md,
+  },
+  historyLink: {
+    marginTop: spacing.lg,
+    paddingVertical: spacing.sm,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  historyLinkText: {
+    ...typography.body,
+    color: colors.primary,
+    fontWeight: '500',
   },
   errorContainer: {
     width: '100%',
