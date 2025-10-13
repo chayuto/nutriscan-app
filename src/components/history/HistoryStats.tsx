@@ -194,7 +194,9 @@ const styles = StyleSheet.create({
     gap: spacing.xs,
   },
   streakIcon: {
-    fontSize: 16,
+    fontSize: 14,
+    color: colors.primary,
+    fontWeight: '700',
   },
   secondaryStatText: {
     ...typography.caption,

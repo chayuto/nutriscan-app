@@ -160,8 +160,10 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.sm,
   },
   icon: {
-    fontSize: 20,
+    fontSize: 18,
+    color: colors.textMuted,
     marginRight: spacing.sm,
+    fontWeight: '600',
   },
   input: {
     flex: 1,
@@ -183,7 +185,8 @@ const styles = StyleSheet.create({
     transform: [{ scale: 0.95 }],
   },
   clearIcon: {
-    fontSize: 14,
+    fontSize: 12,
     color: colors.textSecondary,
+    fontWeight: '700',
   },
 });

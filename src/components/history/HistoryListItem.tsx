@@ -288,7 +288,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   thumbnailPlaceholderText: {
-    fontSize: 24,
+    fontSize: 14,
+    color: colors.textMuted,
+    fontWeight: '600',
   },
   info: {
     flex: 1,
@@ -367,8 +369,11 @@ const styles = StyleSheet.create({
   },
   favoriteIcon: {
     fontSize: 20,
+    color: colors.primary,
   },
   deleteIcon: {
-    fontSize: 18,
+    fontSize: 16,
+    color: colors.error,
+    fontWeight: '700',
   },
 });
