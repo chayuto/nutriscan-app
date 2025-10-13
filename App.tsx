@@ -36,6 +36,7 @@ export default function App() {
   const [reportData, setReportData] = useState<{
     nutritionData: NutritionData;
     imageUri: string;
+    isFromHistory?: boolean; // Flag to indicate if viewing from history
   } | null>(null);
 
   // Load Inter fonts
@@ -77,7 +78,7 @@ export default function App() {
 
   // Handle view report from history (imageUri may be missing if image was deleted)
   const handleViewReportFromHistory = (data: NutritionData, imageUri?: string) => {
-    setReportData({ nutritionData: data, imageUri: imageUri || '' });
+    setReportData({ nutritionData: data, imageUri: imageUri || '', isFromHistory: true });
     setCurrentScreen('report');
   };
 
@@ -103,6 +104,7 @@ export default function App() {
           <ReportScreen
             nutritionData={reportData.nutritionData}
             imageUri={reportData.imageUri}
+            isFromHistory={reportData.isFromHistory}
             onBack={handleBackToHome}
           />
         );

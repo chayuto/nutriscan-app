@@ -12,6 +12,7 @@ import type { NutritionData } from '@/types/nutrition.types';
 export interface ReportScreenProps {
   nutritionData: NutritionData;
   imageUri?: string;
+  isFromHistory?: boolean;
   onBack: () => void;
   testID?: string;
 }
@@ -35,6 +36,7 @@ export interface ReportScreenProps {
 export const ReportScreen: React.FC<ReportScreenProps> = ({
   nutritionData,
   imageUri,
+  isFromHistory,
   onBack,
   testID = 'report-screen',
 }) => {
@@ -112,7 +114,7 @@ export const ReportScreen: React.FC<ReportScreenProps> = ({
 
       {/* Fixed Footer with Action Buttons */}
       <View style={styles.footer}>
-        {!isSaved ? (
+        {!isSaved && !isFromHistory ? (
           <PrimaryButton
             onPress={handleSaveToHistory}
             disabled={isAdding}
@@ -120,6 +122,10 @@ export const ReportScreen: React.FC<ReportScreenProps> = ({
           >
             {isAdding ? 'Saving...' : '💾 Save to History'}
           </PrimaryButton>
+        ) : isFromHistory ? (
+          <View style={styles.savedIndicator}>
+            <Text style={styles.savedText}>✓ From History</Text>
+          </View>
         ) : (
           <View style={styles.savedIndicator}>
             <Text style={styles.savedText}>✓ Saved to History</Text>
